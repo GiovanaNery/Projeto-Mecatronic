@@ -5,6 +5,7 @@
 #include <string>
 
 // declaração de funções e variaveis
+void referenciar_EixoZ();
 void referenciar_EixoX();
 void referenciar_EixoY();
 
