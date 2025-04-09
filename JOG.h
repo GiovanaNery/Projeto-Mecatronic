@@ -6,16 +6,13 @@
 
 // declaração de funções e variaveis
 // funções direções dos eixos 
-void z_menos();
-void z_mais();
-void x_menos();
-void x_mais();
-void y_menos();
-void y_mais();
+void z(float direcao);
+void x(float direcao);
+void y(float direcao);
 // funções para desligar o motor
-void z_desliga();
-void x_desliga();
-void y_desliga();
+void desliga_motor_z();
+void desliga_motor_x();
+void desliga_motor_y();
 
 #endif
         
