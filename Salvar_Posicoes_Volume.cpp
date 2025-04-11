@@ -10,7 +10,6 @@ DigitalIn botaoZmenos(D7);
 InterruptIn encoderCLK(D3);
 DigitalIn encoderDT(D4);
 InterruptIn encoderBotao(D5);
-BufferedSerial pc(USBTX, USBRX, 9600);
 
 volatile int encoderValor = 1;
 volatile int contadorCliques = 0;
@@ -34,8 +33,6 @@ void encoderGiro() {
 
 void aoConfirmar() { confirmado = true; }
 
-void print(const char *msg) { pc.write(msg, strlen(msg)); }
-
 int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
                             int minValor, int maxValor) {
   encoderValor = valorInicial;
@@ -47,7 +44,6 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
     if (encoderValor != valorAnterior) {
       char buf[64];
       sprintf(buf, "%s: %d mL\n", mensagem, encoderValor);
-      print(buf);
       valorAnterior = encoderValor;
     }
 
@@ -91,10 +87,10 @@ void setupEncoder() {
 // === FLUXO DE CONFIGURAÇÃO ===
 void configurarSistema() {
   setupEncoder();
-  print("=== CONFIGURACAO DO SISTEMA DE PIPETAGEM ===\n");
+  // print("=== CONFIGURACAO DO SISTEMA DE PIPETAGEM ===\n");
 
   // 1. POSICIONAR BÉQUER
-  print("1) Mova a pipeta até o béquer\n");
+  // print("1) Mova a pipeta até o béquer\n");
   modoPosicionamentoManual(posBecker);
 
   // 2. DEFINIR VOLUME A SER COLETADO
@@ -108,20 +104,17 @@ void configurarSistema() {
   for (int i = 0; i < quantidadeTubos; i++) {
     char buf[64];
     sprintf(buf, "\nTubo %d: mova a pipeta até o tubo\n", i + 1);
-    print(buf);
     modoPosicionamentoManual(tubos[i].pos);
     tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo", 1, 1, 20);
   }
 }
+// print("\n=== RESUMO FINAL ===\n");
+//char buf[128];
+// sprintf(buf, "Béquer -> Pos(%d,%d,%d), Coletar: %d mL\n", posBecker.x,
+//       posBecker.y, posBecker.z, volumeBeckerML);
 
-// 5. RESUMO FINAL
-print("\n=== RESUMO FINAL ===\n");
-char buf[128];
-sprintf(buf, "Béquer -> Pos(%d,%d,%d), Coletar: %d mL\n", posBecker.x,
-        posBecker.y, posBecker.z, volumeBeckerML);
-print(buf);
-
-for (int i = 0; i < quantidadeTubos; i++) {
-  printf(buf, "Tubo %d -> Pos(%d,%d,%d), Dispensar: %d mL\n", i + 1,
-          tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
-}
+//for (int i = 0; i < quantidadeTubos; i++) {
+//  sprintf(buf, "Tubo %d -> Pos(%d,%d,%d), Dispensar: %d mL\n", i + 1,
+//         tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
+//  print(buf);
+//}
