@@ -108,9 +108,7 @@ void configurarSistema() {
     tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo", 1, 1, 20);
   }
 }
-
 // 5. RESUMO FINAL
-<<<<<<< HEAD
 // print("\n=== RESUMO FINAL ===\n");
 //char buf[128];
 // sprintf(buf, "Béquer -> Pos(%d,%d,%d), Coletar: %d mL\n", posBecker.x,
@@ -121,16 +119,3 @@ void configurarSistema() {
 //         tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
 //  print(buf);
 //}
-
-=======
-print("\n=== RESUMO FINAL ===\n");
-char buf[128];
-sprintf(buf, "Béquer -> Pos(%d,%d,%d), Coletar: %d mL\n", posBecker.x,
-        posBecker.y, posBecker.z, volumeBeckerML);
-print(buf);
-
-for (int i = 0; i < quantidadeTubos; i++) {
-  printf(buf, "Tubo %d -> Pos(%d,%d,%d), Dispensar: %d mL\n", i + 1,
-          tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
-}
->>>>>>> 4bc4247945aaf0d7bb097685a9ee33c10eac1ca1
