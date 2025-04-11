@@ -5,6 +5,8 @@
 #include <string>
 
 // declaração de funções e variaveis
+void encoderGiro();
+void aoConfirmar(); 
 void setupEncoder();
 void configurarSistema();
 
