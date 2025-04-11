@@ -7,6 +7,12 @@ float tempo_z = 0.005; // tempo para o eixo Z
 BusOut MOTOR_Y(PC_5, PC_6, PC_7, PC_8);
 BusOut MOTOR_X(PB_1, PB_13, PB_14, PB_15);
 BusOut MOTOR_Z(PA_8, PA_9, PA_10, PA_11);
+// === ENTRADAS ===
+AnalogIn joystickX(A0);
+AnalogIn joystickY(A1);
+DigitalIn botaoZmais(D6);   // Pressionado = HIGH (sem pull-down)
+DigitalIn botaoZmenos(D7);
+
 
 // Subir
 void z(float direcao) // -1(subir) , +1(descer)
@@ -81,3 +87,35 @@ void desliga_motor_z() {
   MOTOR_Z = 0;
   wait(tempo);
 }
+
+void modoPosicionamentoManual(Ponto3D& pos) {
+    print("\n=== POSICIONAMENTO MANUAL ===\n");
+    print("Use o joystick para mover em X/Y.\n");
+    print("Use os botões para subir/descer Z.\n");
+    print("Pressione o botão do encoder para salvar.\n");
+
+    while (!confirmado) {
+        float xVal = joystickX.read();
+        float yVal = joystickY.read();
+
+        const float deadzone = 0.1;
+
+        if (xVal > 0.6) { x(1); pos.x++; }
+        else if (xVal < 0.4) { x(-1); pos.x--; }
+
+        if (yVal > 0.6) { y(1); pos.y++;}
+        else if (yVal < 0.4) { y(-1); pos.y--; }
+
+        if (botaoZmais.read()) { z(1); pos.z++; }
+        if (botaoZmenos.read()) { z(-1); pos.z--; }
+
+        char buf[64];
+        sprintf(buf, "Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z);
+        print(buf);
+
+        wait(100);
+    }
+
+    confirmado = false; // limpa flag, mas não imprime nada
+}
+
