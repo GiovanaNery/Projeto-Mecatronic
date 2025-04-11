@@ -111,13 +111,13 @@ void configurarSistema() {
 
 // 5. RESUMO FINAL
 // print("\n=== RESUMO FINAL ===\n");
-char buf[128];
+//char buf[128];
 // sprintf(buf, "Béquer -> Pos(%d,%d,%d), Coletar: %d mL\n", posBecker.x,
 //       posBecker.y, posBecker.z, volumeBeckerML);
 
-for (int i = 0; i < quantidadeTubos; i++) {
-  sprintf(buf, "Tubo %d -> Pos(%d,%d,%d), Dispensar: %d mL\n", i + 1,
-          tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
-  print(buf);
-}
+//for (int i = 0; i < quantidadeTubos; i++) {
+//  sprintf(buf, "Tubo %d -> Pos(%d,%d,%d), Dispensar: %d mL\n", i + 1,
+//         tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
+//  print(buf);
+//}
 
