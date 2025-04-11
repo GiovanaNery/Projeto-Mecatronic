@@ -126,8 +126,6 @@ struct Ponto3D {
   int x, y, z;
 };
 
-void print(const char *msg) { pc.write(msg, strlen(msg)); }
-
 void modoPosicionamentoManual(Ponto3D &pos) {
   const int passosInterpol = 10;
   int xDestino = pos.x;
@@ -170,8 +168,7 @@ void modoPosicionamentoManual(Ponto3D &pos) {
     }
 
     char buf[64];
-    sprintf(buf, "Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z);
-    print(buf);
+    sprintf(buf, "Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z); //Printa a posicão X, Y, Z
     wait_ms(100);
   }
 
