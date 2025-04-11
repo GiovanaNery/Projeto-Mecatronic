@@ -122,7 +122,6 @@ sprintf(buf, "Béquer -> Pos(%d,%d,%d), Coletar: %d mL\n", posBecker.x,
 print(buf);
 
 for (int i = 0; i < quantidadeTubos; i++) {
-  sprintf(buf, "Tubo %d -> Pos(%d,%d,%d), Dispensar: %d mL\n", i + 1,
+  printf(buf, "Tubo %d -> Pos(%d,%d,%d), Dispensar: %d mL\n", i + 1,
           tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
-  print(buf);
 }
