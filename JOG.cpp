@@ -87,46 +87,6 @@ void desliga_motor_z() {
   wait(tempo);
 }
 
-// Função que move os motores X e Y de forma coordenada e linear
-// de (x0, y0) até (x1, y1), usando um número fixo de passos
-void moverInterpoladoXY(int x0, int y0, int x1, int y1, int passos) {
-  // Posições atuais dos motores X e Y
-  int xAtual = x0;
-  int yAtual = y0;
-
-  // Para cada passo de interpolação (de 1 até o número total de passos)
-  for (int i = 1; i <= passos; i++) {
-    // Calcula o valor de t entre 0 e 1 (t = porcentagem do caminho)
-    float t = (float)i / passos;
-
-    // Interpola a posição de destino com base no t
-    int xDestino = round(x0 + t * (x1 - x0));
-    int yDestino = round(y0 + t * (y1 - y0));
-
-    // Calcula a diferença entre onde estou e onde quero ir agora
-    int dx = xDestino - xAtual;
-    int dy = yDestino - yAtual;
-
-    // Se precisar andar no eixo X, anda 1 passo na direção correta
-    if (dx > 0) {
-      x(+1); // anda pra direita
-      xAtual++;
-    } else if (dx < 0) {
-      x(-1); // anda pra esquerda
-      xAtual--;
-    }
-
-    // Se precisar andar no eixo Y, anda 1 passo na direção correta
-    if (dy > 0) {
-      y(+1); // anda pra trás
-      yAtual++;
-    } else if (dy < 0) {
-      y(-1); // anda pra frente
-      yAtual--;
-    }
-  }
-}
-
 // === INTERPOLAÇÃO LINEAR ENTRE DOIS PONTOS (X E Y) ===
 void moverInterpoladoXY(int x0, int y0, int x1, int y1, int passos) {
   int xAtual = x0;
@@ -160,7 +120,6 @@ void moverInterpoladoXY(int x0, int y0, int x1, int y1, int passos) {
 }
 
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
-extern BufferedSerial pc;
 extern volatile bool confirmado;
 
 struct Ponto3D {
