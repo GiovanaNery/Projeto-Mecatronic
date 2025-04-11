@@ -1,6 +1,6 @@
 // === ARQUIVO: setup_pipetagem.cpp ===
 #include "mbed.h"
-#include "movimento_motores.h"
+#include "JOG.h"
 
 extern AnalogIn joystickX;
 extern AnalogIn joystickY;

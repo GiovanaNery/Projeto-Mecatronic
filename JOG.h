@@ -13,6 +13,9 @@ void y(float direcao);
 void desliga_motor_z();
 void desliga_motor_x();
 void desliga_motor_y();
+//funções para mover motor por interpolação
+void moverInterpoladoXY();
+void modoPosicionamentoManual();
 
 #endif
         
