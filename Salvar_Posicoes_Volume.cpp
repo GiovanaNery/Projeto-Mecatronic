@@ -2,17 +2,65 @@
 #include "mbed.h"
 #include "movimento_motores.h"
 
-extern AnalogIn joystickX;
-extern AnalogIn joystickY;
-extern DigitalIn botaoZmais;
-extern DigitalIn botaoZmenos;
-extern InterruptIn encoderCLK;
-extern InterruptIn encoderBotao;
-extern DigitalIn encoderDT;
-extern BufferedSerial pc;
-extern volatile int encoderValor;
-extern volatile int contadorCliques;
-extern volatile bool confirmado;
+// === PINOS E VARIÁVEIS GLOBAIS ===
+AnalogIn joystickX(A0);
+AnalogIn joystickY(A1);
+DigitalIn botaoZmais(D6);
+DigitalIn botaoZmenos(D7);
+InterruptIn encoderCLK(D3);
+DigitalIn encoderDT(D4);
+InterruptIn encoderBotao(D5);
+BufferedSerial pc(USBTX, USBRX, 9600);
+
+volatile int encoderValor = 1;
+volatile int contadorCliques = 0;
+volatile bool confirmado = false;
+
+// === CALLBACKS DO ENCODER ===
+void encoderGiro() {
+    if (encoderDT.read() == 0) contadorCliques++;
+    else contadorCliques--;
+
+    if (contadorCliques >= 5) {
+        encoderValor++;
+        contadorCliques = 0;
+    } else if (contadorCliques <= -5) {
+        encoderValor--;
+        contadorCliques = 0;
+    }
+}
+
+void aoConfirmar() {
+    confirmado = true;
+}
+
+void print(const char* msg) {
+    pc.write(msg, strlen(msg));
+}
+
+int selecionarVolumeEncoder(const char* mensagem, int valorInicial, int minValor, int maxValor) {
+    encoderValor = valorInicial;
+    contadorCliques = 0;
+    confirmado = false;
+    int valorAnterior = encoderValor;
+
+    while (!confirmado) {
+        if (encoderValor != valorAnterior) {
+            char buf[64];
+            sprintf(buf, "%s: %d mL\n", mensagem, encoderValor);
+            print(buf);
+            valorAnterior = encoderValor;
+        }
+
+        if (encoderValor < minValor) encoderValor = minValor;
+        if (encoderValor > maxValor) encoderValor = maxValor;
+
+        ThisThread::sleep_for(150ms);
+    }
+
+    confirmado = false;
+    return encoderValor;
+}
 
 // === ESTRUTURAS ===
 struct Ponto3D {
@@ -74,4 +122,3 @@ void configurarSistema() {
                 i + 1, tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
         print(buf);
     }
-}
