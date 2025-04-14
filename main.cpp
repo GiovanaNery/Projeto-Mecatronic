@@ -1,5 +1,4 @@
 #include "mbed.h"
-
 DigitalOut myled(LED1);
 
 DigitalIn But(PC_13);
