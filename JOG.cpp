@@ -5,8 +5,9 @@ float tempo_z = 0.005; // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
 BusOut MOTOR_Y(PC_5, PC_6, PC_7, PC_8);
-BusOut MOTOR_X(PB_1, PB_13, PB_14, PB_15);
+BusOut MOTOR_X(PA_10, PB_3, PB_5, PA_4);
 BusOut MOTOR_Z(PA_8, PA_9, PA_10, PA_11);
+
 // === ENTRADAS ===
 AnalogIn joystickX(A0);
 AnalogIn joystickY(A1);
