@@ -127,6 +127,7 @@ struct Ponto3D {
   int x, y, z;
 };
 
+// Moimentacao pelo JoyStrick
 void modoPosicionamentoManual(Ponto3D &pos) {
   const int passosInterpol = 10;
   int xDestino = pos.x;
