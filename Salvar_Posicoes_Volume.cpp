@@ -2,6 +2,7 @@
 #include "JOG.h"
 #include "mbed.h"
 #include "IHM.h"
+#include "TextLCD.h"
 
 // === ESTRUTURAS ===
 struct Ponto3D {
@@ -39,20 +40,8 @@ void configurarSistema() {
 
   // 4. DEFINIR POSIÇÃO E VOLUME DE CADA TUBO
   for (int i = 0; i < quantidadeTubos; i++) {
-    char buf[64];
-    sprintf(buf, "\nTubo %d: mova a pipeta até o tubo\n", i + 1);
+    lcd.printf("\nTubo %d: mova a pipeta até o tubo\n", i + 1);
     modoPosicionamentoManual(tubos[i].pos);
     tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo", 1, 1, 20);
   }
 }
-// 5. RESUMO FINAL
-// print("\n=== RESUMO FINAL ===\n");
-//char buf[128];
-// sprintf(buf, "Béquer -> Pos(%d,%d,%d), Coletar: %d mL\n", posBecker.x,
-//       posBecker.y, posBecker.z, volumeBeckerML);
-
-//for (int i = 0; i < quantidadeTubos; i++) {
-//  sprintf(buf, "Tubo %d -> Pos(%d,%d,%d), Dispensar: %d mL\n", i + 1,
-//         tubos[i].pos.x, tubos[i].pos.y, tubos[i].pos.z, tubos[i].volumeML);
-//  print(buf);
-//}

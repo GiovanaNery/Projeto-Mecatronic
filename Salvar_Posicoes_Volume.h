@@ -4,6 +4,7 @@
 #include "mbed.h"
 #include <string>
 #include <cstring>
+#include "TextLCD.h"
 
 // declaração de funções e variaveis
 void configurarSistema();
