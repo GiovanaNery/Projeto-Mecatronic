@@ -1,13 +1,11 @@
-#ifndef Referenciamento_H
-#define Referenciamento_H
+#ifndef Acionapipeta_H
+#define Acionapipeta_H
 
 #include "mbed.h"
 #include <string>
 
 // declaração de funções e variaveis
-void referenciar_EixoZ();
-void referenciar_EixoX();
-void referenciar_EixoY();
+void coleta_liberacao();
 
 #endif
         
