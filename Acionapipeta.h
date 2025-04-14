@@ -4,7 +4,7 @@
 #include "mbed.h"
 #include <string>
 
-// declaração de funções e variaveis
+// declaração de funções 
 void coleta_liberacao();
 
 #endif

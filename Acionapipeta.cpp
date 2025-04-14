@@ -9,7 +9,7 @@ DigitalOut Acionar(PC_9);
 // função para acionar a pipeta
 void coleta_liberacao()
 {
-    Acionar = 1; //coletando
+    Acionar = 1; //botao apertado
     wait_ms(2000);
     Acionar = 0; 
     wait(tempo_pega);
