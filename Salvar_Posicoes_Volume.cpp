@@ -4,6 +4,9 @@
 #include "IHM.h"
 #include "TextLCD.h"
 
+// Definindo pinos
+TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
+
 // === ESTRUTURAS ===
 struct Ponto3D {
   int x, y, z;
@@ -25,18 +28,17 @@ int volumeBeckerML = 0;
 // === FLUXO DE CONFIGURAÇÃO ===
 void configurarSistema() {
   setupEncoder();
-  // print("=== CONFIGURACAO DO SISTEMA DE PIPETAGEM ===\n");
+  lcd.printf("=== CONFIGURACAO DO SISTEMA DE PIPETAGEM ===\n");
 
   // 1. POSICIONAR BÉQUER
-  // print("1) Mova a pipeta até o béquer\n");
+  lcd.printf("1) Mova a pipeta até o béquer\n");
   modoPosicionamentoManual(posBecker);
 
   // 2. DEFINIR VOLUME A SER COLETADO
   volumeBeckerML = selecionarVolumeEncoder("Volume a coletar", 1, 1, 20);
 
   // 3. DEFINIR QUANTIDADE DE TUBOS
-  quantidadeTubos =
-      selecionarVolumeEncoder("Quantidade de tubos", 1, 1, MAX_TUBOS);
+  quantidadeTubos = selecionarVolumeEncoder("Quantidade de tubos", 1, 1, MAX_TUBOS);
 
   // 4. DEFINIR POSIÇÃO E VOLUME DE CADA TUBO
   for (int i = 0; i < quantidadeTubos; i++) {

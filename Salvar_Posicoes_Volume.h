@@ -5,6 +5,7 @@
 #include <string>
 #include <cstring>
 #include "TextLCD.h"
+#include "IHM.h"
 
 // declaração de funções e variaveis
 void configurarSistema();

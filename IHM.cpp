@@ -1,10 +1,14 @@
 #include "mbed.h"
 #include "Salvar_Posicoes_Volume.h"
+#include "TextLCD.h"
 
+// Definindo pinos
 InterruptIn encoderCLK(D3);
 DigitalIn encoderDT(D4);
 InterruptIn encoderBotao(D5);
+TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
 
+// Definindo variáveis 
 volatile int encoderValor = 1;
 volatile int contadorCliques = 0;
 volatile bool confirmado = false;
@@ -43,8 +47,7 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor
 
   while (!confirmado) {                 // Fica nesse loop até o botão ser apertado
     if (encoderValor != valorAnterior) {
-      char buf[64];
-      sprintf(buf, "%s: %d mL\n", mensagem, encoderValor);
+      lcd.printf("%s: %d mL\n", mensagem, encoderValor);
       valorAnterior = encoderValor;    // Atualiza o valor mostrado
     }
 
