@@ -3,6 +3,7 @@
 #include "mbed.h"
 
 // === PINOS E VARIÁVEIS GLOBAIS ===
+
 InterruptIn encoderCLK(D3);
 DigitalIn encoderDT(D4);
 InterruptIn encoderBotao(D5);
