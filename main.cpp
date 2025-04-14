@@ -1,5 +1,4 @@
 #include "mbed.h"
-#include "mbed2/299/drivers/DigitalIn.h"
 
 DigitalOut myled(LED1);
 

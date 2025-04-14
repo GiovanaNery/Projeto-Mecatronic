@@ -3,10 +3,6 @@
 #include "mbed.h"
 
 // === PINOS E VARIÁVEIS GLOBAIS ===
-AnalogIn joystickX(A0);
-AnalogIn joystickY(A1);
-DigitalIn botaoZmais(D6);
-DigitalIn botaoZmenos(D7);
 InterruptIn encoderCLK(D3);
 DigitalIn encoderDT(D4);
 InterruptIn encoderBotao(D5);

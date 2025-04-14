@@ -1,4 +1,4 @@
-#include "JOG.h"
+#include "mbed.h"
 
 float tempo = 0.01;    // tempo para os eixos X e Y
 float tempo_z = 0.005; // tempo para o eixo Z
@@ -93,8 +93,8 @@ void moverInterpoladoXY(int x0, int y0, int x1, int y1, int passos) {
   int yAtual = y0;
   for (int i = 1; i <= passos; i++) {
     float t = (float)i / passos;
-    int xDestino = round(x0 + t * (x1 - x0));
-    int yDestino = round(y0 + t * (y1 - y0));
+    int xDestino = (int)(x0 + t * (x1 - x0) + 0.5f);
+    int yDestino = (int)(y0 + t * (y1 - y0) + 0.5f);
 
     int dx = xDestino - xAtual;
     int dy = yDestino - yAtual;
@@ -167,9 +167,9 @@ void modoPosicionamentoManual(Ponto3D &pos) {
       wait_ms(100);
     }
 
-    char buf[64];
-    sprintf(buf, "Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z); //Printa a posicão X, Y, Z
-    wait_ms(100);
+    //char buf[64];
+    //sprintf(buf, "Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z); //Printa a posicão X, Y, Z
+    //wait_ms(100);
   }
 
   confirmado = false;
