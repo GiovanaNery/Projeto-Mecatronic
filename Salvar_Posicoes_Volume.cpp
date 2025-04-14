@@ -30,8 +30,7 @@ void encoderGiro() {
 
 void aoConfirmar() { confirmado = true; }
 
-int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
-                            int minValor, int maxValor) {
+int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor) {
   encoderValor = valorInicial;
   contadorCliques = 0;
   confirmado = false;

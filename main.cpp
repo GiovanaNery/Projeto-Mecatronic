@@ -1,13 +1,14 @@
 #include "mbed.h"
-DigitalOut myled(LED1);
-
-DigitalIn But(PC_13);
+#include "Referenciamento.h"
 
 int main() {
-  while(1) {
-    myled = 1;
-    wait(0.2);
-    myled = 0;
-    wait(0.2);
-  }
+    // Inicializa o sistema
+    referenciar_EixoZ();   // <- função que você criou com setup de posição e volume
+
+    // Aqui você pode chamar a execução da pipetagem (se tiver feito essa função)
+    // executarPipetagem();
+
+    while (true) {
+        // Aguarda ou roda tarefas repetitivas
+    }
 }
