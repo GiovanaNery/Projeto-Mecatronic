@@ -1,59 +1,7 @@
 // === ARQUIVO: setup_pipetagem.cpp ===
 #include "JOG.h"
 #include "mbed.h"
-
-// === PINOS E VARIÁVEIS GLOBAIS ===
-
-InterruptIn encoderCLK(D3);
-DigitalIn encoderDT(D4);
-InterruptIn encoderBotao(D5);
-
-volatile int encoderValor = 1;
-volatile int contadorCliques = 0;
-volatile bool confirmado = false;
-
-// === CALLBACKS DO ENCODER ===
-void encoderGiro() {
-  if (encoderDT.read() == 0)
-    contadorCliques++;
-  else
-    contadorCliques--;
-
-  if (contadorCliques >= 5) {
-    encoderValor++;
-    contadorCliques = 0;
-  } else if (contadorCliques <= -5) {
-    encoderValor--;
-    contadorCliques = 0;
-  }
-}
-
-void aoConfirmar() { confirmado = true; }
-
-int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor) {
-  encoderValor = valorInicial;
-  contadorCliques = 0;
-  confirmado = false;
-  int valorAnterior = encoderValor;
-
-  while (!confirmado) {
-    if (encoderValor != valorAnterior) {
-      char buf[64];
-      sprintf(buf, "%s: %d mL\n", mensagem, encoderValor);
-      valorAnterior = encoderValor;
-    }
-
-    if (encoderValor < minValor)
-      encoderValor = minValor;
-    if (encoderValor > maxValor)
-      encoderValor = maxValor;
-
-    wait_ms(150);
-  }
-
-  confirmado = false;
-  return encoderValor;
-}
+#include "IHM.h"
 
 // === ESTRUTURAS ===
 struct Ponto3D {
@@ -72,13 +20,6 @@ int quantidadeTubos = 0;
 Ponto3D posBecker;
 int volumeBeckerML = 0;
 
-// === SETUP DO ENCODER ===
-void setupEncoder() {
-  encoderCLK.rise(&encoderGiro);
-  encoderDT.mode(PullUp);
-  encoderBotao.fall(&aoConfirmar);
-  encoderBotao.mode(PullUp);
-}
 
 // === FLUXO DE CONFIGURAÇÃO ===
 void configurarSistema() {
