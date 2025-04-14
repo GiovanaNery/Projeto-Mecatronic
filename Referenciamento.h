@@ -3,6 +3,7 @@
 
 #include "mbed.h"
 #include <string>
+#include "TextLCD.h"
 
 // declaração de funções e variaveis
 void referenciar_EixoZ();

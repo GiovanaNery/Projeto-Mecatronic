@@ -1,4 +1,5 @@
 #include "mbed.h"
+#include "TextLCD.h" 
 
 float tempo = 0.01;    // tempo para os eixos X e Y
 float tempo_z = 0.005; // tempo para o eixo Z
@@ -13,6 +14,7 @@ AnalogIn joystickX(A0);
 AnalogIn joystickY(A1);
 DigitalIn botaoZmais(D6); // Pressionado = HIGH (sem pull-down)
 DigitalIn botaoZmenos(D7);
+TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
 
 // Subir
 void z(float direcao) // -1(subir) , +1(descer)
@@ -169,9 +171,8 @@ void modoPosicionamentoManual(Ponto3D &pos) {
       wait_ms(100);
     }
 
-    //char buf[64];
-    //sprintf(buf, "Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z); //Printa a posicão X, Y, Z
-    //wait_ms(100);
+    lcd.printf("Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z); //Printa a posicão X, Y, Z
+    wait_ms(100);
   }
 
   confirmado = false;
