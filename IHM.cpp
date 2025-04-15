@@ -62,7 +62,5 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor
   confirmado = false;                   // Limpa a flag pro próximo uso
   return encoderValor;                  // Retorna o valor final escolhido
 }
-
 //chave seletora 
-
 
