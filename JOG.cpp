@@ -1,74 +1,95 @@
+#include "TextLCD.h"
 #include "mbed.h"
-#include "TextLCD.h" 
 
-float tempo = 0.01;    // tempo para os eixos X e Y
-float tempo_z = 0.005; // tempo para o eixo Z
+float tempo = 0.002;   // tempo para os eixos X e Y
+float tempo_z = 0.001; // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
-BusOut MOTOR_Y(PC_5, PC_6, PC_7, PC_8);
-BusOut MOTOR_X(PA_10, PB_3, PB_5, PA_4);
-BusOut MOTOR_Z(PA_8, PA_9, PA_10, PA_11);
+BusOut MOTOR_Y(D14, D15, D8, D9);
+BusOut MOTOR_X(D2, D3, D4, D5);
+BusOut MOTOR_Z(D10, D11, D12, A5);
+Serial pc(USBTX, USBRX, 9600);
 
 // === ENTRADAS ===
 AnalogIn joystickX(A0);
 AnalogIn joystickY(A1);
 DigitalIn botaoZmais(D6); // Pressionado = HIGH (sem pull-down)
 DigitalIn botaoZmenos(D7);
-TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
+// TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
+
+// Criando parametros
+int j;
+int Y_passo = 0;
+int X_passo = 0;
+int Z_passo = 0;
 
 // Subir
-void z(float direcao) // -1(subir) , +1(descer)
+void z(int direcao) // -1(subir) , +1(descer)
 {
   // subir
-  if (direcao < 1) {
-    for (int i = 3; i > -1; i--) {
-      MOTOR_Z = 1 << i;
-      wait(tempo_z);
+  if (direcao < 0) {
+    MOTOR_Z = 1 << Z_passo;
+    Z_passo++;
+    if (Z_passo > 3) {
+      Z_passo = 0;
     }
+    wait(tempo); 
   }
   // Descer
-  if (direcao > 1) {
-    for (int i = 0; i < 4; i++) {
-      MOTOR_Z = 1 << i;
-      wait(tempo_z);
+  if (direcao > 0) {
+    MOTOR_Z = 1 << Z_passo;
+    Z_passo--;
+    if (Z_passo < 0) {
+      Z_passo = 3;
     }
+    wait(tempo);
   }
 }
 
 // esquerda
-void x(float direcao) // -1(esquerda) , +1(direita)
+void x(int direcao) // -1(esquerda) , +1(direita)
 // esquerda
 {
-  if (direcao < 1) {
-    for (int i = 0; i < 4; i++) {
-      MOTOR_X = 1 << i;
-      wait(tempo);
+  // esquerda
+  if (direcao < 0) {
+    MOTOR_X = 1 << X_passo;
+    X_passo++;
+    if (X_passo > 3) {
+      X_passo = 0;
     }
+    wait(tempo);
   }
+
   // Direta
-  if (direcao > 1) {
-    for (int i = 3; i > -1; i--) {
-      MOTOR_X = 1 << i;
-      wait(tempo);
+  if (direcao > 0) {
+    MOTOR_X = 1 << X_passo;
+    X_passo--;
+    if (X_passo < 0) {
+      X_passo = 3;
     }
+    wait(tempo);
   }
 }
 
-void y(float direcao) // -1(frente) , +1(tras)
+void y(int direcao) // -1(frente) , +1(tras)
 {
   // frente
-  if (direcao < 1) {
-    for (int i = 0; i < 4; i++) {
-      MOTOR_Y = 1 << i;
-      wait(tempo);
+  if (direcao < 0) {
+    MOTOR_Y = 1 << Y_passo;
+    Y_passo++;
+    if (Y_passo > 3) {
+      Y_passo = 0;
     }
+    wait(tempo);
   }
   // Tras
-  if (direcao > 1) {
-    for (int i = 3; i > -1; i--) {
-      MOTOR_Y = 1 << i;
-      wait(tempo);
+  if (direcao > 0) {
+    MOTOR_Y = 1 << Y_passo;
+    Y_passo--;
+    if (Y_passo < 0) {
+      Y_passo = 3;
     }
+    wait(tempo);
   }
 }
 
@@ -84,6 +105,7 @@ void desliga_motor_y() {
   MOTOR_Y = 0;
   wait(tempo);
 }
+
 void desliga_motor_z() {
 
   MOTOR_Z = 0;
@@ -171,7 +193,9 @@ void modoPosicionamentoManual(Ponto3D &pos) {
       wait_ms(100);
     }
 
-    lcd.printf("Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z); //Printa a posicão X, Y, Z
+    // pc.printf("Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z);
+    // lcd.printf("Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z); //Printa
+    // a posicão X, Y, Z
     wait_ms(100);
   }
 
