@@ -10,6 +10,6 @@ void encoderGiro();
 void aoConfirmar(); 
 void setupEncoder();
 void setupEncoder();
-void selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor)
+int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor);
 
 #endif
