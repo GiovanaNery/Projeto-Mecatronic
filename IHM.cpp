@@ -60,3 +60,4 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor
   return encoderValor;                  // Retorna o valor final escolhido
 }
 
+
