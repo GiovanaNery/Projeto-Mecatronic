@@ -11,7 +11,7 @@ DigitalIn endstopZ_neg(PA_4); // Z: topo — define zero
 DigitalIn endstopZ_pos(PA_5); // Z: base — define limite inferior
 
 // Definindo pinos
-TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
+//TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
 
 // Variáveis globais para armazenar o curso total
 int curso_total_x = 0;
@@ -23,7 +23,7 @@ void referenciar_EixoZ() {
   endstopZ_neg.mode(PullUp);
   endstopZ_pos.mode(PullUp);
 
-  lcd.printf("Início do referenciamento do eixo Z...\n");
+  //lcd.printf("Início do referenciamento do eixo Z...\n");
 
   // 1. Sobe até o topo (posição zero)
   while (endstopZ_neg.read() == 1) {
@@ -43,7 +43,7 @@ void referenciar_EixoZ() {
     z(-1);
   }
 
-  lcd.printf("Fim do referenciamento do eixo Z.\n");
+  //lcd.printf("Fim do referenciamento do eixo Z.\n");
 }
 
 // Referenciando o EIXO X
@@ -51,7 +51,7 @@ void referenciar_EixoX() {
   endstopX_neg.mode(PullUp);
   endstopX_pos.mode(PullUp);
 
-  lcd.printf("Início do referenciamento do eixo X...\n");
+  //lcd.printf("Início do referenciamento do eixo X...\n");
 
   // 1. Vai até o lado negativo
   while (endstopX_neg.read() == 1) {
@@ -66,7 +66,7 @@ void referenciar_EixoX() {
   }
   curso_total_x = passos;
 
-  lcd.printf("Fim do referenciamento do eixo X.\n");
+  //lcd.printf("Fim do referenciamento do eixo X.\n");
 }
 
 // Referenciamento do EIXO Y
@@ -74,7 +74,7 @@ void referenciar_EixoY() {
   endstopY_neg.mode(PullUp);
   endstopY_pos.mode(PullUp);
 
-  lcd.printf("Início do referenciamento do eixo Y...\n");
+  //lcd.printf("Início do referenciamento do eixo Y...\n");
 
   // 1. Vai até o lado negativo
   while (endstopY_neg.read() == 1) {
@@ -89,6 +89,6 @@ void referenciar_EixoY() {
   }
   curso_total_y = passos;
 
-  lcd.printf("Fim do referenciamento do eixo Y.\n");
+  //lcd.printf("Fim do referenciamento do eixo Y.\n");
 }
 
