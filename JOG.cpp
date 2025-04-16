@@ -1,11 +1,13 @@
 #include "TextLCD.h"
 #include "mbed.h"
+#include "mbed2/299/TARGET_NUCLEO_F103RB/TARGET_STM/TARGET_STM32F1/TARGET_NUCLEO_F103RB/PinNames.h"
+#include "printLCD.h"
 
 float tempo = 0.002;   // tempo para os eixos X e Y
 float tempo_z = 0.001; // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
-BusOut MOTOR_Y(D14, D15, D8, D9);
+BusOut MOTOR_Y(A3, A2, D8, D9);
 BusOut MOTOR_X(D2, D3, D4, D5);
 BusOut MOTOR_Z(D10, D11, D12, A5);
 Serial pc(USBTX, USBRX, 9600);
@@ -180,22 +182,10 @@ void modoPosicionamentoManual(Ponto3D &pos) {
       moverInterpoladoXY(pos.x, pos.y, xDestino, yDestino, passosInterpol);
       pos.y = yDestino;
     }
-
-    if (botaoZmais.read()) {
-      z(+1);
-      pos.z++;
-      wait_ms(100);
-    }
-
-    if (botaoZmenos.read()) {
-      z(-1);
-      pos.z--;
-      wait_ms(100);
-    }
-
-    // pc.printf("Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z);
-    // lcd.printf("Posição -> X:%d Y:%d Z:%d\n", pos.x, pos.y, pos.z); //Printa
-    // a posicão X, Y, Z
+    
+    char buf[32];  // buffer de texto simples
+    sprintf(buf, "X:%d Y:%d", pos.x, pos.y);
+    printLCD(buf, 0);  // imprime na linha 0
     wait_ms(100);
   }
 

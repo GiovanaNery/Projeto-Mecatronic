@@ -1,12 +1,10 @@
 #include "mbed.h"
 #include "Salvar_Posicoes_Volume.h"
-#include "TextLCD.h"
 
 // Definindo pinos
 InterruptIn encoderCLK(D3);
 DigitalIn encoderDT(D4);
 InterruptIn encoderBotao(D5);
-TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
 
 // Definindo variáveis 
 volatile int encoderValor = 1;
@@ -62,5 +60,4 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor
   confirmado = false;                   // Limpa a flag pro próximo uso
   return encoderValor;                  // Retorna o valor final escolhido
 }
-//chave seletora 
 

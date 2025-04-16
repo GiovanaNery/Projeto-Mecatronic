@@ -6,7 +6,6 @@
 #include <string>
 #include <cstring> 
 
-
 // declaração de funções e variaveis
 // funções direções dos eixos 
 void z(int direcao);
