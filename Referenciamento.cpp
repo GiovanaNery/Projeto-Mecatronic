@@ -1,6 +1,7 @@
 #include "mbed.h"
 #include "JOG.h"
 #include "TextLCD.h"
+#include "printLCD.h"
 
 // Definindo pinos dos sensores de fim de curso dos eixos
 DigitalIn endstopX_neg(PA_0); // X: lado esquerdo (zero)
@@ -21,6 +22,8 @@ int curso_total_z = 0;
 // Referenciamento do EIXO Z
 void referenciar_EixoZ() {
   endstopZ_neg.mode(PullUp);
+  printLCD("Início do referenciamento do eixo Z", 0);
+
 
   //lcd.printf("Início do referenciamento do eixo Z...\n");
 
@@ -28,6 +31,7 @@ void referenciar_EixoZ() {
   while (endstopZ_neg.read() == 1) {
     z(-1);
   }
+  printLCD("Fim do referenciamento do eixo Z", 0);
 
   //lcd.printf("Fim do referenciamento do eixo Z.\n");
 }

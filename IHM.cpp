@@ -6,7 +6,6 @@
 InterruptIn encoderCLK(D3);
 DigitalIn encoderDT(D4);
 InterruptIn encoderBotao(D5);
-TextLCD lcd(D8, D9, D4, D5, D6, D7); // rs,e,d0,d1,d2,d3
 // Pinos para os LEDs
 DigitalOut ledVermelho(D2);
 DigitalOut ledVerde(D3);
@@ -129,6 +128,7 @@ void piscarLed(char cor, bool& parar) {
 //piscarLed('r', pararPiscar); // Enquanto pisca led vermelho, outra lógica pode rodar em paralelo
 // Quando quiser parar:
 //pararPiscar = true;
+<<<<<<< HEAD
 
 // Botão de movimentacão do eixo Z 
 
@@ -161,3 +161,5 @@ void controlarEixoZ() {
         }
     }
 }
+=======
+>>>>>>> 840d3b2848229333764f77a85da2a66a2644497c
