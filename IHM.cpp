@@ -128,13 +128,9 @@ void piscarLed(char cor, bool& parar) {
 //piscarLed('r', pararPiscar); // Enquanto pisca led vermelho, outra lógica pode rodar em paralelo
 // Quando quiser parar:
 //pararPiscar = true;
-<<<<<<< HEAD
+
 
 // Botão de movimentacão do eixo Z 
-
-
-
-// Função de controle do eixo Z
 void controlarEixoZ() {
     // Configura pull-up interno (botão fechado para GND)
     botaoZmais.mode(PullUp);
@@ -161,5 +157,3 @@ void controlarEixoZ() {
         }
     }
 }
-=======
->>>>>>> 840d3b2848229333764f77a85da2a66a2644497c
