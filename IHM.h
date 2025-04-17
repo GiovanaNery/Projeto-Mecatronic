@@ -19,5 +19,8 @@ void setupEncoder();
 void setupEncoder();
 int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor);
 void printLCD(const char* texto, int linha);
+void chaveseletora(DigitalIn &seletor, float &tempo);
+void acenderLed(char cor); 
+void piscarLed(char cor, bool& parar);
 
 #endif
