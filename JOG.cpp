@@ -1,13 +1,12 @@
 #include "TextLCD.h"
 #include "mbed.h"
-#include "mbed2/299/TARGET_NUCLEO_F103RB/TARGET_STM/TARGET_STM32F1/TARGET_NUCLEO_F103RB/PinNames.h"
 #include "printLCD.h"
 
-float tempo = 0.002;   // tempo para os eixos X e Y
+float tempo = 0.003;   // tempo para os eixos X e Y
 float tempo_z = 0.001; // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
-BusOut MOTOR_Y(A3, A2, D8, D9);
+BusOut MOTOR_Y(D8, D9, A3, A2);
 BusOut MOTOR_X(D2, D3, D4, D5);
 BusOut MOTOR_Z(D10, D11, D12, A5);
 Serial pc(USBTX, USBRX, 9600);
@@ -141,53 +140,73 @@ void moverInterpoladoXY(int x0, int y0, int x1, int y1, int passos) {
       y(-1);
       yAtual--;
     }
-
-    wait_ms(5);
   }
 }
 
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
+// === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK CORRIGIDO ===
 extern volatile bool confirmado;
 
 struct Ponto3D {
-  int x, y, z;
+    int x, y, z;
 };
 
-// Moimentacao pelo JoyStrick
 void modoPosicionamentoManual(Ponto3D &pos) {
-  const int passosInterpol = 10;
-  int xDestino = pos.x;
-  int yDestino = pos.y;
+    const int passosInterpol = 50;
+    const int passosEntrePrints = 10;  // a cada 10 passos, atualiza o LCD
+    int xDestino = pos.x;
+    int yDestino = pos.y;
 
-  while (!confirmado) {
-    float xVal = joystickX.read();
-    float yVal = joystickY.read();
+    int passosDesdeUltimoPrint = 15;
 
-    if (xVal > 0.6) {
-      xDestino++;
-      moverInterpoladoXY(pos.x, pos.y, xDestino, yDestino, passosInterpol);
-      pos.x = xDestino;
-    } else if (xVal < 0.4) {
-      xDestino--;
-      moverInterpoladoXY(pos.x, pos.y, xDestino, yDestino, passosInterpol);
-      pos.x = xDestino;
+    while (!confirmado) {
+        float xVal = joystickX.read();
+        float yVal = joystickY.read();
+        bool movimentou = false;
+
+        // === EIXO X ===
+        if (xVal > 0.6f) {
+            xDestino++;
+            moverInterpoladoXY(pos.x, pos.y, xDestino, pos.y, passosInterpol);
+            pos.x = xDestino;
+            movimentou = true;
+        } else if (xVal < 0.4f) {
+            xDestino--;
+            moverInterpoladoXY(pos.x, pos.y, xDestino, pos.y, passosInterpol);
+            pos.x = xDestino;
+            movimentou = true;
+        }
+
+        // === EIXO Y ===
+        if (yVal > 0.6f) {
+            yDestino++;
+            moverInterpoladoXY(pos.x, pos.y, pos.x, yDestino, passosInterpol);
+            pos.y = yDestino;
+            movimentou = true;
+        } else if (yVal < 0.4f) {
+            yDestino--;
+            moverInterpoladoXY(pos.x, pos.y, pos.x, yDestino, passosInterpol);
+            pos.y = yDestino;
+            movimentou = true;
+        }
+
+        // === Atualiza LCD a cada X passos ===
+        if (movimentou) {
+            passosDesdeUltimoPrint++;
+            if (passosDesdeUltimoPrint >= passosEntrePrints) {
+                char buf[32];
+                sprintf(buf, "X:%d Y:%d", pos.x, pos.y);
+                printLCD(buf, 0);
+                passosDesdeUltimoPrint = 0;
+            }
+        }
+
+        wait_ms(5);  // controle leve de loop, sem travar
     }
 
-    if (yVal > 0.6) {
-      yDestino++;
-      moverInterpoladoXY(pos.x, pos.y, xDestino, yDestino, passosInterpol);
-      pos.y = yDestino;
-    } else if (yVal < 0.4) {
-      yDestino--;
-      moverInterpoladoXY(pos.x, pos.y, xDestino, yDestino, passosInterpol);
-      pos.y = yDestino;
-    }
-    
-    char buf[32];  // buffer de texto simples
-    sprintf(buf, "X:%d Y:%d", pos.x, pos.y);
-    printLCD(buf, 0);  // imprime na linha 0
-    wait_ms(100);
-  }
-
-  confirmado = false;
+    // Atualiza o LCD ao final, posição final
+    char buf[32];
+    sprintf(buf, "Final X:%d Y:%d", pos.x, pos.y);
+    printLCD(buf, 0);
 }
+

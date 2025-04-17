@@ -27,16 +27,10 @@ void printLCD(const char* texto, int linha) {
 int main() {
     lcd.setCursor(TextLCD::CurOff_BlkOff);
     lcd.setBacklight(TextLCD::LightOn);
-    printLCD("teste", 0);
-    x(1);
-    y(1);
-    z(1);
-
-    //Ponto3D posteste = {0, 0, 0};
-   // modoPosicionamentoManual(posteste);  // função implementada em outro cpp
-
-    //while (true) {
-        // loop vazio só pra manter o LCD
-   // }
+    Ponto3D posteste = {0, 0, 0};
+    modoPosicionamentoManual(posteste);  // função implementada em outro cpp
+    while (true) {
+        //x(1);
+    }
 }
 
