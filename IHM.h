@@ -7,10 +7,10 @@
 #include <cstring>
 
 // Declaração do barramento I2C (caso também esteja em outro .cpp)
-extern I2C i2c_lcd;
+//extern I2C i2c_lcd;
 
 // Declaração externa do LCD
-extern TextLCD_I2C lcd;
+//extern TextLCD_I2C lcd;
 
 // declaração de funções e variaveis
 void encoderGiro();

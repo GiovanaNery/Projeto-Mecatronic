@@ -4,9 +4,6 @@
 #include "IHM.h"
 #include "TextLCD.h"
 
-// Definindo pinos
-TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
-
 // === ESTRUTURAS ===
 struct Ponto3D {
   int x, y, z;

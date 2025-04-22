@@ -2,7 +2,6 @@
 #include "Referenciamento.h"
 #include "mbed.h"
 #include "printLCD.h"
-#include "referenciamento.h"
 
 float tempo = 0.0005;   // tempo para os eixos X e Y
 float tempo_z = 0.001; // tempo para o eixo Z
