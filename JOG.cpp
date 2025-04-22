@@ -109,6 +109,12 @@ void desliga_motor_z() {
   wait(tempo);
 }
 
+void pararMotores() {
+    STEP_X = 0;
+    STEP_Y = 0;
+    MOTOR_Z = 0;
+}
+
 // === INTERPOLAÇÃO LINEAR ENTRE DOIS PONTOS (X E Y) ===
 void moverInterpoladoXY(int x0, int y0, int x1, int y1, int passos) {
   int xAtual = x0;

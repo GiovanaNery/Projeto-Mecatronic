@@ -15,6 +15,7 @@ void y(int direcao);
 void desliga_motor_z();
 void desliga_motor_x();
 void desliga_motor_y();
+void pararMotores();
 //funções para mover motor por interpolação
 void moverInterpoladoXY(int x0, int y0, int x1, int y1, int passos);
 void modoPosicionamentoManual(struct Ponto3D &pos);
