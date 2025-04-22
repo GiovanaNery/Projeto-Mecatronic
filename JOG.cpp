@@ -74,17 +74,17 @@ void x(int direcao) {
 }
 
 // ACIONAR MOTOR EIXO Y - DRIVER
-void y(int passos) {
-    if (passos == 0) return;
+void y(int direcao) {
+    if (direcao == 0) return;
 
     // Define a direção com base no sinal
     // Frente (negativo) = 0 --> anti-horario
     // Trás (positivo) = 1 --> horario
-    DIR_Y = (passos > 0) ? 1 : 0;
+    DIR_Y = (direcao > 0) ? 1 : 0;
     wait_us(100);  // Delay para estabilizar o sinal DIR
 
     // Executa os passos
-    int totalPassos = abs(passos);
+    int totalPassos = abs(direcao);
     for (int i = 0; i < totalPassos; i++) {
         STEP_Y = 1;
         wait_us(100);  // Pulso HIGH
