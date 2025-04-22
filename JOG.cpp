@@ -6,13 +6,7 @@ float tempo = 0.0005;   // tempo para os eixos X e Y
 float tempo_z = 0.001; // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
-<<<<<<< HEAD
 BusOut MOTOR_Z(D10, D11, D12, A5);
-=======
-BusOut MOTOR_Y(D8, D9, A3, A2);
-BusOut MOTOR_X(D2, D3, D4, D5);
-BusOut MOTOR_Z(D10, D11, D12, D13);
->>>>>>> 9a39302b52e0eceae32b427ce6d9d04263407782
 Serial pc(USBTX, USBRX, 9600);
 
 // Pinos conectados ao driver do motor no eixo X
