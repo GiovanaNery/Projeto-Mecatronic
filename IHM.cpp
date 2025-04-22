@@ -15,9 +15,7 @@ DigitalIn botaoZmenos(D3); //z no sentido negativo
 // Pinos do motor - drivers 
 DigitalOut passoZ(D6);
 DigitalOut direcaoZ(D5);
-
-
-// === PINOS DO ENCODER ===
+// PINOS DO ENCODER
 InterruptIn encoderCLK(D6);     // sinal A
 DigitalIn encoderDT(D7);        // sinal B
 InterruptIn encoderBotao(D8);   // botão (leitura manual)
