@@ -1,53 +1,48 @@
+#include "mbed.h"
+#include "IHM.h"
+#include "JOG.h"
+#include "printLCD.h" 
 
-// Simulação de funções de motores (você pode conectar a motores reais)
-// === Definição dos pinos ===
+// === Pinos e objetos ===
 DigitalIn botaoEmergencia(D2);
-DigitalIn botaoConfirma(D3);
-
-DigitalOut ledVermelho(PC_10);
 DigitalOut buzzer(PB_5);
 
-TextLCD lcd(PA_0, PA_1, PA_4, PB_0, PC_1, PC_0); // Ajuste os pinos conforme seu circuito
-
-DigitalOut STEP_X(D4), STEP_Y(D5), STEP_Z(D6);
-
+extern bool confirmado;               // Sinal de confirmação (controlado por aoConfirmar)
 bool emergenciaAtiva = false;
+bool pararPiscar = false;             // Controle para piscar LED
 
-// === Parar motores ===
-void pararMotores() {
-    STEP_X = 0;
-    STEP_Y = 0;
-    STEP_Z = 0;
-}
 
-// === Função de emergência NR-12 ===
+//Função principal do MODO DE EMERGÊNCIA (NR-12) 
 void modoEmergencia() {
     emergenciaAtiva = true;
-    pararMotores();
+    pararMotores();      // Para os 3 eixos
+    buzzer = 1;          // Liga alarme sonoro
+    pararPiscar = false;
+    piscarLed('r', pararPiscar);
 
-    buzzer = 1;
-    lcd.cls();
-    lcd.printf("ATENCAO:\nOperacao Interrompida!");
+    printLCD("ATENCAO: Operacão Interrompida!",0);
     wait(2);
-    lcd.cls();
-    lcd.printf("MODO DE\nEMERGENCIA");
+    printLCD("MODO DE EMERGENCIA", 0);
 
-    while (botaoEmergencia == 0);  // Espera botão ser liberado
+    // Aguarda o botão de emergência ser liberado
+    while (botaoEmergencia == 0);
 
-    lcd.cls();
-    lcd.printf("Confirmar\nSaida Emerg.?");
-    while (botaoConfirma == 1);
+    // Confirma saída do modo de emergência
+    printLCD("Confirmar Saída do Modo de Emergencia?",0);
+    confirmado = false;
+    while (!confirmado);
     wait_ms(300);  // debounce
 
-    buzzer = 0;
-    ledVermelho = 0;
+    // Para o alarme e o LED
+    buzzer = 0; //desligar buzzer (som)
+    pararPiscar = true;  // Encerra thread de piscar
 
-    lcd.cls();
-    lcd.printf("Reiniciar\nProcesso?");
-    while (botaoConfirma == 1);
+    // Confirma reinício do processo
+    printLCD("Reiniciar Processo?",0);
+    confirmado = false;
+    while (!confirmado);
     wait_ms(300);
 
     emergenciaAtiva = false;
-    lcd.cls();
-    lcd.printf("Sistema Ativo");
+    printLCD("Sistema Ativo",0);
 }

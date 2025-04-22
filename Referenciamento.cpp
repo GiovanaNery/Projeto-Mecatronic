@@ -1,7 +1,6 @@
 #include "Referenciamento.h"
 #include "mbed.h"
 #include "JOG.h"
-#include "TextLCD.h"
 #include "printLCD.h"
 
 // Definindo pinos dos sensores de fim de curso dos eixos
@@ -11,9 +10,6 @@ DigitalIn endstopY_neg(D7); // Y: frente (zero)
 DigitalIn endstopY_pos(D6); // Y: trás (máximo)
 DigitalIn endstopZ_neg(PA_4); // Z: topo — define zero
 DigitalIn endstopZ_pos(PA_5); // Z: base — define limite inferior
-
-// Definindo pinos
-TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
 
 // Variáveis globais para armazenar o curso total
 int curso_total_x = 0;

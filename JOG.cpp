@@ -123,6 +123,12 @@ void desliga_motor_z() {
   wait(tempo);
 }
 
+void pararMotores() {
+    STEP_X = 0;
+    STEP_Y = 0;
+    MOTOR_Z = 0;
+}
+
 // === INTERPOLAÇÃO LINEAR ENTRE DOIS PONTOS (X E Y) ===
 // Função de interpolação XY usando os contadores atuais
 void moverInterpoladoXY(int xDestino, int yDestino, int passos) {
