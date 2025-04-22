@@ -8,12 +8,12 @@ float tempo_z = 0.001; // tempo para o eixo Z
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
 BusOut MOTOR_Y(D8, D9, A3, A2);
 BusOut MOTOR_X(D2, D3, D4, D5);
-BusOut MOTOR_Z(D10, D11, D12, A5);
+BusOut MOTOR_Z(D10, D11, D12, D13);
 Serial pc(USBTX, USBRX, 9600);
 
 // === ENTRADAS ===
-AnalogIn joystickX(A0);
-AnalogIn joystickY(A1);
+AnalogIn joystickX(A5);
+AnalogIn joystickY(A4);
 DigitalIn botaoZmais(D6); // Pressionado = HIGH (sem pull-down)
 DigitalIn botaoZmenos(D7);
 // TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3

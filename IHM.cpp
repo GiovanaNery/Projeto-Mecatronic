@@ -1,76 +1,86 @@
 #include "Salvar_Posicoes_Volume.h"
 #include "TextLCD.h"
 #include "mbed.h"
+#include "printLCD.h"
 
-// Definindo pinos
-InterruptIn encoderCLK(D3);
-DigitalIn encoderDT(D4);
-InterruptIn encoderBotao(D5);
 // Pinos para os LEDs
 DigitalOut ledVermelho(D2);
 DigitalOut ledVerde(D3);
 DigitalOut ledAmarelo(D4);
+
 // Pino fixo da chave seletora
 DigitalIn seletor(D5);
 
-// Definindo variáveis
+// === PINOS DO ENCODER ===
+InterruptIn encoderCLK(D6);     // sinal A
+DigitalIn encoderDT(D7);        // sinal B
+InterruptIn encoderBotao(D8);   // botão (leitura manual)
+
+// === VARIÁVEIS ===
 volatile int encoderValor = 1;
 volatile int contadorCliques = 0;
 volatile bool confirmado = false;
+int valorAnterior = encoderValor;
+bool ultimoEstadoBotao = 1;  // botão não pressionado
 
-void setupEncoder() {
-  encoderCLK.rise(&encoderGiro); // Quando o sinal CLK sobe (borda de subida),
-                                 // chama a função encoderGiro()
-  encoderDT.mode(PullUp); // Coloca um resistor de pull-up no pino DT (para
-                          // leitura estável)
-  encoderBotao.fall(&aoConfirmar); // Quando o botão for pressionado (borda de
-                                   // descida), chama aoConfirmar()
-  encoderBotao.mode(PullUp); // Coloca resistor de pull-up no botão também
-}
-
+// === Função de leitura de giro ===
 void encoderGiro() {
-  if (encoderDT.read() == 0) // Verifica a direção do giro (baseado no DT)
-    contadorCliques++;       // Sentido horário
-  else
-    contadorCliques--; // Sentido anti-horário
-
-  if (contadorCliques >= 5) {         // Acumulou 5 cliques para a direita
-    encoderValor++;                   // Aumenta o valor mostrado
-    contadorCliques = 0;              // Zera os cliques
-  } else if (contadorCliques <= -5) { // Acumulou 5 cliques para a esquerda
-    encoderValor--;                   // Diminui o valor mostrado
-    contadorCliques = 0;
-  }
-}
-
-void aoConfirmar() {
-  confirmado = true; // Indica que o botão foi pressionado
-}
-
-int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
-                            int minValor, int maxValor) {
-  encoderValor = valorInicial; // Define valor inicial
-  contadorCliques = 0;
-  confirmado = false; // Aguarda clique do botão
-  int valorAnterior = encoderValor;
-
-  while (!confirmado) { // Fica nesse loop até o botão ser apertado
-    if (encoderValor != valorAnterior) {
-      lcd.printf("%s: %d mL\n", mensagem, encoderValor);
-      valorAnterior = encoderValor; // Atualiza o valor mostrado
+    if (encoderCLK.read() == encoderDT.read()) {
+        contadorCliques++;
+    } else {
+        contadorCliques--;
     }
 
-    if (encoderValor < minValor)
-      encoderValor = minValor;
-    if (encoderValor > maxValor)
-      encoderValor = maxValor;
-
-    wait_ms(150); // Espera um pouco pra evitar rebotes rápidos
-  }
-
-  confirmado = false;  // Limpa a flag pro próximo uso
-  return encoderValor; // Retorna o valor final escolhido
+    if (contadorCliques >= 5) {
+        encoderValor++;
+        contadorCliques = 0;
+    } else if (contadorCliques <= -5) {
+        encoderValor--;
+        contadorCliques = 0;
+    }
 }
+
+// === Função de confirmação via botão ===
+void aoConfirmar() {
+    confirmado = true;
+}
+
+// === Função principal de seleção com LCD ===
+int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor) {
+    encoderValor = valorInicial;
+    contadorCliques = 0;
+    confirmado = false;
+    int valorAnterior = encoderValor;
+
+    printLCD(mensagem, 0); // mostra mensagem na linha 0
+
+    while (!confirmado) {
+        if (encoderValor < 0) {
+            encoderValor = 0;
+        }
+
+        if (encoderValor != valorAnterior) {
+            char buffer[20];
+            sprintf(buffer, "Volume: %d mL", encoderValor);
+            printLCD(buffer, 1); // mostra valor na linha 1
+            valorAnterior = encoderValor;
+        }
+
+        wait_ms(10); // Anti-repique leve
+    }
+
+    confirmado = false;
+    return encoderValor;
+}
+
+// === Setup inicial ===
+void setupEncoder() {
+    encoderDT.mode(PullUp);
+    encoderBotao.mode(PullUp);
+    encoderCLK.fall(&encoderGiro);      // gira
+    encoderBotao.fall(&aoConfirmar);    // botão confirma
+}
+
 
 // chave seletora - para definir a velocidade que quero usar 
 void chaveseletora(float &tempo) {

@@ -25,12 +25,12 @@ void printLCD(const char* texto, int linha) {
 }
 
 int main() {
-    lcd.setCursor(TextLCD::CurOff_BlkOff);
-    lcd.setBacklight(TextLCD::LightOn);
-    Ponto3D posteste = {0, 0, 0};
-    modoPosicionamentoManual(posteste);  // função implementada em outro cpp
+    //lcd.setCursor(TextLCD::CurOff_BlkOff);
+    //lcd.setBacklight(TextLCD::LightOn);
+    //Ponto3D posteste = {0, 0, 0};
+    //modoPosicionamentoManual(posteste);  // função implementada em outro cpp
     while (true) {
-        //x(1);
+        x(1);
     }
 }
 
