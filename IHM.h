@@ -22,5 +22,6 @@ void printLCD(const char* texto, int linha);
 void chaveseletora(DigitalIn &seletor, float &tempo);
 void acenderLed(char cor); 
 void piscarLed(char cor, bool& parar);
+void controlarEixoZ();
 
 #endif

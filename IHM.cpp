@@ -10,6 +10,13 @@ DigitalOut ledAmarelo(D4);
 
 // Pino fixo da chave seletora
 DigitalIn seletor(D5);
+// Pinos dos botões
+DigitalIn botaoZmais(D2); //z no sentido positivo
+DigitalIn botaoZmenos(D3); //z no sentido negativo
+// Pinos do motor - drivers 
+DigitalOut passoZ(D4);
+DigitalOut direcaoZ(D5);
+
 
 // === PINOS DO ENCODER ===
 InterruptIn encoderCLK(D6);     // sinal A
@@ -131,3 +138,32 @@ void piscarLed(char cor, bool& parar) {
 //piscarLed('r', pararPiscar); // Enquanto pisca led vermelho, outra lógica pode rodar em paralelo
 // Quando quiser parar:
 //pararPiscar = true;
+
+
+// Botão de movimentacão do eixo Z 
+void controlarEixoZ() {
+    // Configura pull-up interno (botão fechado para GND)
+    botaoZmais.mode(PullUp);
+    botaoZmenos.mode(PullUp);
+
+    while (true) {
+        if (botaoZmais == 0) {
+            direcaoZ = 1;        // Sentido positivo
+            passoZ = 1;
+            wait_us(500);
+            passoZ = 0;
+            wait_us(500);
+        } 
+        else if (botaoZmenos == 0) {
+            direcaoZ = 0;        // Sentido negativo
+            passoZ = 1;
+            wait_us(500);
+            passoZ = 0;
+            wait_us(500);
+        } 
+        else {
+            // Nenhum botão pressionado → motor parado
+            passoZ = 0;
+        }
+    }
+}
