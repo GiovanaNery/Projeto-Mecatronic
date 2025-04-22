@@ -1,24 +1,12 @@
 #include "mbed.h"
-<<<<<<< HEAD
 #include "Salvar_Posicoes_Volume.h"
 //#include "TextLCD.h"
 #include "printLCD.h" 
 
-=======
-#include "printLCD.h"
->>>>>>> 9a39302b52e0eceae32b427ce6d9d04263407782
-
 // Pinos para os LEDs
-<<<<<<< HEAD
 DigitalOut ledVermelho(A0);
 DigitalOut ledVerde(A1);
 DigitalOut ledAmarelo(A2);
-=======
-DigitalOut ledVermelho(D2);
-DigitalOut ledVerde(D3);
-DigitalOut ledAmarelo(D4);
-
->>>>>>> 9a39302b52e0eceae32b427ce6d9d04263407782
 // Pino fixo da chave seletora
 DigitalIn seletor(D5);
 // Pinos dos botões
