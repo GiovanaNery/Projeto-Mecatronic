@@ -1,22 +1,27 @@
-#include "TextLCD.h"
+//#include "TextLCD.h"
 #include "mbed.h"
 #include "printLCD.h"
 
-float tempo = 0.003;   // tempo para os eixos X e Y
+float tempo = 0.0005;   // tempo para os eixos X e Y
 float tempo_z = 0.001; // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
-BusOut MOTOR_Y(D8, D9, A3, A2);
-BusOut MOTOR_X(D2, D3, D4, D5);
 BusOut MOTOR_Z(D10, D11, D12, A5);
 Serial pc(USBTX, USBRX, 9600);
+
+// Pinos conectados ao driver do motor no eixo X
+DigitalOut DIR_X(D2);   // Pino de direção (DIR)
+DigitalOut STEP_X(D4);  // Pino de passo (STEP)
+
+// Pinos conectados ao driver do eixo Y
+DigitalOut DIR_Y(D6);   // Direção
+DigitalOut STEP_Y(D7);  // Passo
 
 // === ENTRADAS ===
 AnalogIn joystickX(A0);
 AnalogIn joystickY(A1);
 DigitalIn botaoZmais(D6); // Pressionado = HIGH (sem pull-down)
 DigitalIn botaoZmenos(D7);
-// TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
 
 // Criando parametros
 int j;
@@ -24,7 +29,7 @@ int Y_passo = 0;
 int X_passo = 0;
 int Z_passo = 0;
 
-// Subir
+// ACIONAR MOTOR EIXO Z - MOSFET
 void z(int direcao) // -1(subir) , +1(descer)
 {
   // subir
@@ -47,68 +52,59 @@ void z(int direcao) // -1(subir) , +1(descer)
   }
 }
 
-// esquerda
-void x(int direcao) // -1(esquerda) , +1(direita)
-// esquerda
-{
-  // esquerda
-  if (direcao < 0) {
-    MOTOR_X = 1 << X_passo;
-    X_passo++;
-    if (X_passo > 3) {
-      X_passo = 0;
-    }
-    wait(tempo);
-  }
+// ACIONAR MOTOR EIXO X - DRIVER
+void x(int direcao) {
+    if (direcao == 0) return;  // Sem movimento se passos = 0
+    // Define a direção:
+    // - Direita se passos > 0  → DIR_X = 1 (horario)
+    // - Esquerda se passos < 0 → DIR_X = 0 (anti-horario)
+    DIR_X = (direcao > 0) ? 1 : 0;
 
-  // Direta
-  if (direcao > 0) {
-    MOTOR_X = 1 << X_passo;
-    X_passo--;
-    if (X_passo < 0) {
-      X_passo = 3;
+    // Garante tempo para o driver "ler" a direção
+    wait_us(100);
+
+    // Executa a quantidade absoluta de passos
+    int totalPassos = abs(direcao);
+    for (int i = 0; i < totalPassos; i++) {
+        STEP_X = 1;
+        wait_us(100);      // Pulso HIGH
+        STEP_X = 0;
+        wait_us(tempo * 1e6);  // Tempo entre passos
     }
-    wait(tempo);
-  }
 }
 
-void y(int direcao) // -1(frente) , +1(tras)
-{
-  // frente
-  if (direcao < 0) {
-    MOTOR_Y = 1 << Y_passo;
-    Y_passo++;
-    if (Y_passo > 3) {
-      Y_passo = 0;
+// ACIONAR MOTOR EIXO Y - DRIVER
+void y(int passos) {
+    if (passos == 0) return;
+
+    // Define a direção com base no sinal
+    // Frente (negativo) = 0 --> anti-horario
+    // Trás (positivo) = 1 --> horario
+    DIR_Y = (passos > 0) ? 1 : 0;
+    wait_us(100);  // Delay para estabilizar o sinal DIR
+
+    // Executa os passos
+    int totalPassos = abs(passos);
+    for (int i = 0; i < totalPassos; i++) {
+        STEP_Y = 1;
+        wait_us(100);  // Pulso HIGH
+        STEP_Y = 0;
+        wait_us(tempo * 1e6);  // Tempo entre passos
     }
-    wait(tempo);
-  }
-  // Tras
-  if (direcao > 0) {
-    MOTOR_Y = 1 << Y_passo;
-    Y_passo--;
-    if (Y_passo < 0) {
-      Y_passo = 3;
-    }
-    wait(tempo);
-  }
 }
 
 // desligar as bobinas
 void desliga_motor_x() {
-
-  MOTOR_X = 0;
-  wait(tempo);
+  STEP_X = 0;
+  wait_us(tempo * 1e6);
 }
 
 void desliga_motor_y() {
-
-  MOTOR_Y = 0;
-  wait(tempo);
+  STEP_Y = 0;
+  wait_us(tempo * 1e6);
 }
 
 void desliga_motor_z() {
-
   MOTOR_Z = 0;
   wait(tempo);
 }

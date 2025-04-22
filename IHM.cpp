@@ -1,22 +1,24 @@
-#include "Salvar_Posicoes_Volume.h"
-#include "TextLCD.h"
 #include "mbed.h"
+#include "Salvar_Posicoes_Volume.h"
+//#include "TextLCD.h"
+#include "printLCD.h" 
+
 
 // Definindo pinos
 InterruptIn encoderCLK(D3);
 DigitalIn encoderDT(D4);
 InterruptIn encoderBotao(D5);
 // Pinos para os LEDs
-DigitalOut ledVermelho(D2);
-DigitalOut ledVerde(D3);
-DigitalOut ledAmarelo(D4);
+DigitalOut ledVermelho(A0);
+DigitalOut ledVerde(A1);
+DigitalOut ledAmarelo(A2);
 // Pino fixo da chave seletora
 DigitalIn seletor(D5);
 // Pinos dos botões
 DigitalIn botaoZmais(D2); //z no sentido positivo
 DigitalIn botaoZmenos(D3); //z no sentido negativo
 // Pinos do motor - drivers 
-DigitalOut passoZ(D4);
+DigitalOut passoZ(D6);
 DigitalOut direcaoZ(D5);
 
 
@@ -104,6 +106,17 @@ void acenderLed(char cor) {  //acender apenas indicando apenas a incial correspo
         ledAmarelo = 1;
     }
 }
+//COMO USAR A FUNCAO:
+//int main() {
+    // Acende somente o LED vermelho
+//    acenderLed('y');
+
+    // Loop infinito para manter o programa rodando
+//    while (true) {
+        // Não faz mais nada, apenas mantém o LED vermelho aceso
+//   }
+//}
+
 
 // piscar LEDS por cor
 void piscarLed(char cor, bool& parar) {
@@ -138,7 +151,7 @@ void controlarEixoZ() {
 
     while (true) {
         if (botaoZmais == 0) {
-            direcaoZ = 1;        // Sentido positivo
+            direcaoZ = 1;        // Sentido positivo (desce)
             passoZ = 1;
             wait_us(500);
             passoZ = 0;

@@ -12,7 +12,7 @@ DigitalIn endstopZ_neg(PA_4); // Z: topo — define zero
 DigitalIn endstopZ_pos(PA_5); // Z: base — define limite inferior
 
 // Definindo pinos
-//TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
+TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
 
 // Variáveis globais para armazenar o curso total
 int curso_total_x = 0;
