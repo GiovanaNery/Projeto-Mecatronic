@@ -1,3 +1,4 @@
+#include "Referenciamento.h"
 #include "mbed.h"
 #include "JOG.h"
 #include "TextLCD.h"
@@ -46,8 +47,10 @@ void referenciar_EixoX() {
   while (endstopX_neg.read() == 1) {
     x(-1); // move até o fim negativo
   }
+  passos_X = 0;
 
   //lcd.printf("Fim do referenciamento do eixo X.\n");
+
 }
 
 // Referenciamento do EIXO Y
@@ -60,6 +63,7 @@ void referenciar_EixoY() {
   while (endstopY_neg.read() == 1) {
     y(-1); // move até o fim negativo
   }
+  passos_Y = 0;
   //lcd.printf("Fim do referenciamento do eixo Y.\n");
 }
 

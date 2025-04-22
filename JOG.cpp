@@ -1,6 +1,8 @@
 //#include "TextLCD.h"
+#include "Referenciamento.h"
 #include "mbed.h"
 #include "printLCD.h"
+#include "referenciamento.h"
 
 float tempo = 0.0005;   // tempo para os eixos X e Y
 float tempo_z = 0.001; // tempo para o eixo Z
@@ -24,9 +26,6 @@ DigitalIn botaoZmais(D6); // Pressionado = HIGH (sem pull-down)
 DigitalIn botaoZmenos(D7);
 
 // Criando parametros
-int j;
-int Y_passo = 0;
-int X_passo = 0;
 int Z_passo = 0;
 
 // ACIONAR MOTOR EIXO Z - MOSFET
@@ -39,6 +38,7 @@ void z(int direcao) // -1(subir) , +1(descer)
     if (Z_passo > 3) {
       Z_passo = 0;
     }
+    passos_Z++;
     wait(tempo); 
   }
   // Descer
@@ -48,6 +48,7 @@ void z(int direcao) // -1(subir) , +1(descer)
     if (Z_passo < 0) {
       Z_passo = 3;
     }
+    passos_Z--;
     wait(tempo);
   }
 }
@@ -70,6 +71,13 @@ void x(int direcao) {
         wait_us(100);      // Pulso HIGH
         STEP_X = 0;
         wait_us(tempo * 1e6);  // Tempo entre passos
+         // Conta o passo
+        if (direcao > 0) {
+            passos_X++;
+        } 
+        else {
+            passos_X--;
+        }
     }
 }
 
@@ -90,6 +98,12 @@ void y(int direcao) {
         wait_us(100);  // Pulso HIGH
         STEP_Y = 0;
         wait_us(tempo * 1e6);  // Tempo entre passos
+        if (direcao > 0) {
+            passos_Y++;
+        } 
+        else {
+            passos_Y--;
+        }
     }
 }
 
@@ -110,83 +124,78 @@ void desliga_motor_z() {
 }
 
 // === INTERPOLAÇÃO LINEAR ENTRE DOIS PONTOS (X E Y) ===
-void moverInterpoladoXY(int x0, int y0, int x1, int y1, int passos) {
-  int xAtual = x0;
-  int yAtual = y0;
-  for (int i = 1; i <= passos; i++) {
-    float t = (float)i / passos;
-    int xDestino = (int)(x0 + t * (x1 - x0) + 0.5f);
-    int yDestino = (int)(y0 + t * (y1 - y0) + 0.5f);
+// Função de interpolação XY usando os contadores atuais
+void moverInterpoladoXY(int xDestino, int yDestino, int passos) {
+    // posição inicial
+    int xInicio = passos_X;
+    int yInicio = passos_Y;
 
-    int dx = xDestino - xAtual;
-    int dy = yDestino - yAtual;
+    for (int i = 1; i <= passos; i++) {
+        float t = (float)i / passos;
+        int xAlvo = (int)(xInicio + t * (xDestino - xInicio) + 0.5f);
+        int yAlvo = (int)(yInicio + t * (yDestino - yInicio) + 0.5f);
 
-    if (dx > 0) {
-      x(+1);
-      xAtual++;
-    } else if (dx < 0) {
-      x(-1);
-      xAtual--;
+        int dx = xAlvo - passos_X;
+        int dy = yAlvo - passos_Y;
+
+        if (dx > 0) {
+            x(+1);
+        } else if (dx < 0) {
+            x(-1);
+        }
+
+        if (dy > 0) {
+            y(+1);
+        } else if (dy < 0) {
+            y(-1);
+        }
     }
-
-    if (dy > 0) {
-      y(+1);
-      yAtual++;
-    } else if (dy < 0) {
-      y(-1);
-      yAtual--;
-    }
-  }
 }
 
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
-// === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK CORRIGIDO ===
 extern volatile bool confirmado;
 
-struct Ponto3D {
-    int x, y, z;
-};
+struct Ponto3D { int x, y, z; };
 
 void modoPosicionamentoManual(Ponto3D &pos) {
     const int passosInterpol = 50;
-    const int passosEntrePrints = 10;  // a cada 10 passos, atualiza o LCD
-    int xDestino = pos.x;
-    int yDestino = pos.y;
-
-    int passosDesdeUltimoPrint = 15;
+    const int passosEntrePrints = 10;
+    int passosDesdeUltimoPrint = passosEntrePrints;
 
     while (!confirmado) {
         float xVal = joystickX.read();
         float yVal = joystickY.read();
         bool movimentou = false;
 
-        // === EIXO X ===
+        // Eixo X
         if (xVal > 0.6f) {
-            xDestino++;
-            moverInterpoladoXY(pos.x, pos.y, xDestino, pos.y, passosInterpol);
-            pos.x = xDestino;
+            int novoX = pos.x + 1;
+            moverInterpoladoXY(novoX, pos.y, passosInterpol);
+            pos.x = novoX;
             movimentou = true;
-        } else if (xVal < 0.4f) {
-            xDestino--;
-            moverInterpoladoXY(pos.x, pos.y, xDestino, pos.y, passosInterpol);
-            pos.x = xDestino;
+        }
+        else if (xVal < 0.4f) {
+            int novoX = pos.x - 1;
+            moverInterpoladoXY(novoX, pos.y, passosInterpol);
+            pos.x = novoX;
             movimentou = true;
         }
 
-        // === EIXO Y ===
+        // Eixo Y
         if (yVal > 0.6f) {
-            yDestino++;
-            moverInterpoladoXY(pos.x, pos.y, pos.x, yDestino, passosInterpol);
-            pos.y = yDestino;
+            int novoY = pos.y + 1;
+            moverInterpoladoXY(pos.x, novoY, passosInterpol);
+            pos.y = novoY;
             movimentou = true;
-        } else if (yVal < 0.4f) {
-            yDestino--;
-            moverInterpoladoXY(pos.x, pos.y, pos.x, yDestino, passosInterpol);
-            pos.y = yDestino;
+        }
+        else if (yVal < 0.4f) {
+            int novoY = pos.y - 1;
+            moverInterpoladoXY(pos.x, novoY, passosInterpol);
+            pos.y = novoY;
             movimentou = true;
         }
 
-        // === Atualiza LCD a cada X passos ===
+        // Atualiza LCD de tempos em tempos
         if (movimentou) {
             passosDesdeUltimoPrint++;
             if (passosDesdeUltimoPrint >= passosEntrePrints) {
@@ -196,13 +205,10 @@ void modoPosicionamentoManual(Ponto3D &pos) {
                 passosDesdeUltimoPrint = 0;
             }
         }
-
-        wait_ms(5);  // controle leve de loop, sem travar
     }
 
-    // Atualiza o LCD ao final, posição final
+    // print final
     char buf[32];
     sprintf(buf, "Final X:%d Y:%d", pos.x, pos.y);
     printLCD(buf, 0);
 }
-
