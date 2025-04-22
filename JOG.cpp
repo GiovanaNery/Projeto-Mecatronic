@@ -2,7 +2,6 @@
 #include "Referenciamento.h"
 #include "mbed.h"
 #include "printLCD.h"
-#include "referenciamento.h"
 
 float tempo = 0.0005;   // tempo para os eixos X e Y
 float tempo_z = 0.001; // tempo para o eixo Z
@@ -162,6 +161,8 @@ void moverInterpoladoXY(int xDestino, int yDestino, int passos) {
 extern volatile bool confirmado;
 
 struct Ponto3D { int x, y, z; };
+float TEMPO_BASE    = 0.005f; // intervalo base entre passos (s)
+float DEADZONE      = 0.2f;
 
 void modoPosicionamentoManual(Ponto3D &pos) {
     const int passosInterpol = 50;
@@ -169,47 +170,25 @@ void modoPosicionamentoManual(Ponto3D &pos) {
     int passosDesdeUltimoPrint = passosEntrePrints;
 
     while (!confirmado) {
-        float xVal = joystickX.read();
-        float yVal = joystickY.read();
-        bool movimentou = false;
+        // leitura centrada em 0
+        float xVal = joystickX.read() - 0.5f;
+        float yVal = joystickY.read() - 0.5f;
 
-        // Eixo X
-        if (xVal > 0.6f) {
-            int novoX = pos.x + 1;
-            moverInterpoladoXY(novoX, pos.y, passosInterpol);
-            pos.x = novoX;
-            movimentou = true;
+        // determina direção se passar da deadzone
+        int dirX = (std::fabs(xVal) > DEADZONE) ? (xVal > 0 ? +1 : -1) : 0;
+        int dirY = (std::fabs(yVal) > DEADZONE) ? (yVal > 0 ? +1 : -1) : 0;
+
+        // aciona passos nos eixos adequados
+        if (dirX) {
+            x(dirX);
         }
-        else if (xVal < 0.4f) {
-            int novoX = pos.x - 1;
-            moverInterpoladoXY(novoX, pos.y, passosInterpol);
-            pos.x = novoX;
-            movimentou = true;
+        if (dirY) {
+            y(dirY);
         }
 
-        // Eixo Y
-        if (yVal > 0.6f) {
-            int novoY = pos.y + 1;
-            moverInterpoladoXY(pos.x, novoY, passosInterpol);
-            pos.y = novoY;
-            movimentou = true;
-        }
-        else if (yVal < 0.4f) {
-            int novoY = pos.y - 1;
-            moverInterpoladoXY(pos.x, novoY, passosInterpol);
-            pos.y = novoY;
-            movimentou = true;
-        }
-
-        // Atualiza LCD de tempos em tempos
-        if (movimentou) {
-            passosDesdeUltimoPrint++;
-            if (passosDesdeUltimoPrint >= passosEntrePrints) {
-                char buf[32];
-                sprintf(buf, "X:%d Y:%d", pos.x, pos.y);
-                printLCD(buf, 0);
-                passosDesdeUltimoPrint = 0;
-            }
+        // debug serial a cada passo
+        if (dirX || dirY) {
+            pc.printf("Pos X=%d Y=%d\r\n", pos.x, pos.y);
         }
     }
 
