@@ -12,7 +12,7 @@ struct Ponto3D {
   int z;
 };
 
-LCD_I2C_I2C i2c_lcd(D14, D15);
+I2C i2c_lcd(D14, D15);
 TextLCD_I2C lcd(&i2c_lcd, 0x4E, TextLCD::LCD20x4);
 
 // Função para testar impressão no LCD
@@ -20,8 +20,8 @@ void printLCD(const char *texto, int linha) {
   lcd.locate(0, linha);
   for (int i = 0; i < lcd.columns(); i++)
     lcd.putc(' ');
-    lcd.locate(0, linha);
-    lcd.printf("%s", texto);
+  lcd.locate(0, linha);
+  lcd.printf("%s", texto);
 }
 
 int main() {
