@@ -1,5 +1,5 @@
 #include "mbed.h"
-#include "IHM.h"      // só pra referenciar ledVermelho
+#include "IHM.h"      
 #include "JOG.h"
 #include "printLCD.h"
 
@@ -11,7 +11,7 @@ DigitalOut ledVermelho(PC_10);
 extern bool confirmado;
 bool emergenciaAtiva = false;
 
-// Criamos um Ticker para o piscar não‑bloqueante
+// Criamos um Ticker para o piscar não-bloqueante
 Ticker tickerPiscar;
 
 // Callback do Ticker: alterna o LED vermelho
@@ -19,51 +19,51 @@ void alternarLedVermelho() {
     ledVermelho = !ledVermelho;
 }
 
-// Modo de emergência, compatível com Mbed 2
+// Modo de emergência
 void modoEmergencia() {
-    emergenciaAtiva = true;
+    emergenciaAtiva = true;          // entra em modo de emergência
+    pararMotores();                  // 1) para todos os motores
+    buzzer = 1;                      // 2) liga o buzzer
+    tickerPiscar.attach(&alternarLedVermelho, 0.3);  // 3) começa a piscar o LED vermelho
 
-    // 1) Para todos os eixos
-    pararMotores();
-
-    // 2) Aciona buzzer
-    buzzer = 1;
-
-    // 3) Inicia piscar do LED vermelho a cada 300 ms
-    tickerPiscar.attach(&alternarLedVermelho, 0.3);
-
-    // 4) Mensagens no LCD
+    // 4) mostra mensagem de interrupção
     printLCD("ATENCAO: Operacão Interrompida!", 0);
     wait(2);
     printLCD("MODO DE EMERGENCIA", 0);
 
-    // 5) Aguarda o botão de emergência ser liberado
+    // 5) aguarda liberar o botão de emergência
     while (botaoEmergencia == 0) {
-        // aqui o LED continua piscando via Ticker
+        // LED continua piscando via Ticker
     }
+    // LOGO QUE O BOTÃO É LIBERADO:
+    tickerPiscar.detach();   // para o piscar
+    ledVermelho = 0;         // garante o LED desligado
 
-    // 6) Solicita confirmação de saída
+    // 6) solicita confirmação de saída do modo emergência (buzzer ainda ativo)
     printLCD("Confirmar Saída do Modo de Emergencia?", 0);
     confirmado = false;
     while (!confirmado) {
-        // LED ainda piscando
+        // aqui o LED já está apagado, buzzer continua som
     }
-    wait_ms(300);
+    wait_ms(300);  // debounce
 
-    // 7) Desliga buzzer e piscar
+    // 7) agora sim desliga o buzzer
     buzzer = 0;
-    tickerPiscar.detach();
-    ledVermelho = 0;
 
-    // 8) Solicita confirmação de reinício
+    // 8) solicita confirmação de reinício
     printLCD("Reiniciar Processo?", 0);
     confirmado = false;
     while (!confirmado) {
-        // sem piscar agora
+        // permanece tudo desligado
     }
     wait_ms(300);
 
-    // 9) Fim da emergência
+    // 9) sai do modo emergência
     emergenciaAtiva = false;
     printLCD("Sistema Ativo", 0);
 }
+
+//1. Botão apertado → buzzer + LED piscando.
+//2. Botão liberado → LED apaga imediatamente; buzzer continua.
+//3. Usuário confirma saída → buzzer para.
+//4. Usuário confirma reinício → sistema volta ao normal.
