@@ -4,8 +4,8 @@
 #include "printLCD.h"
 
 // Definindo pinos dos sensores de fim de curso dos eixos
-DigitalIn endstopX_neg(PA_0); // X: lado esquerdo (zero)
-DigitalIn endstopX_pos(PA_1); // X: lado direito (máximo)
+DigitalIn endstopX_neg(PB_13); // X: lado esquerdo (zero)
+DigitalIn endstopX_pos(PB_15); // X: lado direito (máximo)
 DigitalIn endstopY_neg(D7); // Y: frente (zero)
 DigitalIn endstopY_pos(D6); // Y: trás (máximo)
 DigitalIn endstopZ_neg(PA_4); // Z: topo — define zero
@@ -34,12 +34,12 @@ void referenciar_EixoZ() {
 
 // Referenciando o EIXO X
 void referenciar_EixoX() {
-  endstopX_neg.mode(PullUp);
+  //endstopX_neg.mode(PullUp);
 
   printLCD("Início do referenciamento do eixo X", 0);
 
   // 1. Vai até o lado negativo
-  while (endstopX_neg.read() == 1) {
+  while (endstopX_neg.read() == 0) {
     x(-1); // move até o fim negativo
   }
   passos_X = 0;
@@ -50,12 +50,12 @@ void referenciar_EixoX() {
 
 // Referenciamento do EIXO Y
 void referenciar_EixoY() {
-  endstopY_neg.mode(PullUp);
+  //endstopY_neg.mode(PullUp);
 
   printLCD("Início do referenciamento do eixo Y.",0);
 
   // 1. Vai até o lado negativo
-  while (endstopY_neg.read() == 1) {
+  while (endstopY_neg.read() == 0) {
     y(-1); // move até o fim negativo
   }
   passos_Y = 0;

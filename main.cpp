@@ -28,9 +28,12 @@ int main() {
   lcd.setCursor(TextLCD::CurOff_BlkOff);
   lcd.setBacklight(TextLCD::LightOn);
   Ponto3D posteste = {0, 0, 0};
-  modoPosicionamentoManual(posteste); // função implementada em outro cpp
+  referenciar_EixoX();
+  wait(3);
+  referenciar_EixoY();
+  //  modoPosicionamentoManual(posteste); // função implementada em outro cpp
   while (true) {
-    x(10);
-    y(-10);
+    // x(10);
+    //  y(10);
   }
 }
