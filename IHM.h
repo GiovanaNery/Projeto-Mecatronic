@@ -17,7 +17,7 @@ void encoderGiro();
 void aoConfirmar(); 
 void setupEncoder();
 void setupEncoder();
-int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor);
+int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor, int ind);
 void printLCD(const char* texto, int linha);
 void chaveseletora(DigitalIn &seletor, float &tempo);
 void acenderLed(char cor); 

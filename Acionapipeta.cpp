@@ -13,4 +13,5 @@ void coleta_liberacao()
     wait_ms(2000);
     Acionar = 0; 
     wait(tempo_pega);
+    
 }

@@ -1,6 +1,5 @@
 #include "mbed.h"
 #include "Salvar_Posicoes_Volume.h"
-//#include "TextLCD.h"
 #include "printLCD.h" 
 
 // Pinos para os LEDs
@@ -50,32 +49,39 @@ void aoConfirmar() {
 }
 
 // === Função principal de seleção com LCD ===
-int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor) {
-    encoderValor = valorInicial;
+int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor, int ind) {
+    // ind = 0 → seleciona volume (exibe “Volume: X mL”)
+    // ind = 1 → apenas exibe o número
+    encoderValor    = valorInicial;
     contadorCliques = 0;
-    confirmado = false;
+    confirmado      = false;
     int valorAnterior = encoderValor;
 
-    printLCD(mensagem, 0); // mostra mensagem na linha 0
+    printLCD(mensagem, 0); // mensagem na linha 0
 
     while (!confirmado) {
-        if (encoderValor < 0) {
-            encoderValor = 0;
-        }
+        // limita entre minValor e maxValor
+        if (encoderValor < minValor) encoderValor = minValor;
+        else if (encoderValor > maxValor) encoderValor = maxValor;
 
         if (encoderValor != valorAnterior) {
             char buffer[20];
-            sprintf(buffer, "Volume: %d mL", encoderValor);
-            printLCD(buffer, 1); // mostra valor na linha 1
+            if (ind == 0) {
+                sprintf(buffer, "Volume: %d mL", encoderValor);
+            } else {
+                sprintf(buffer, "%d", encoderValor);
+            }
+            printLCD(buffer, 1);  // valor na linha 1
             valorAnterior = encoderValor;
         }
 
-        wait_ms(10); // Anti-repique leve
+        wait_ms(10);  // debounce suave
     }
 
     confirmado = false;
     return encoderValor;
 }
+
 
 // === Setup inicial ===
 void setupEncoder() {

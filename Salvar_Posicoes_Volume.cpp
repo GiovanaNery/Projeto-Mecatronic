@@ -2,10 +2,7 @@
 #include "JOG.h"
 #include "mbed.h"
 #include "IHM.h"
-#include "TextLCD.h"
-
-// Definindo pinos
-TextLCD lcd(D8, D9, D4, D5, D6, D7); //rs,e,d0,d1,d2,d3
+#include "printLCD.h"
 
 // === ESTRUTURAS ===
 struct Ponto3D {
@@ -28,22 +25,19 @@ int volumeBeckerML = 0;
 // === FLUXO DE CONFIGURAÇÃO ===
 void configurarSistema() {
   setupEncoder();
-  //lcd.printf("=== CONFIGURACAO DO SISTEMA DE PIPETAGEM ===\n");
-
   // 1. POSICIONAR BÉQUER
-  //lcd.printf("1) Mova a pipeta até o béquer\n");
+  printLCD("Mova a pipeta até o béquer",0);
   modoPosicionamentoManual(posBecker);
 
-  // 2. DEFINIR VOLUME A SER COLETADO
-  volumeBeckerML = selecionarVolumeEncoder("Volume a coletar", 1, 1, 20);
-
   // 3. DEFINIR QUANTIDADE DE TUBOS
-  quantidadeTubos = selecionarVolumeEncoder("Quantidade de tubos", 1, 1, MAX_TUBOS);
+  quantidadeTubos = selecionarVolumeEncoder("Quantidade de tubos:", 1, 1, MAX_TUBOS,1);
 
   // 4. DEFINIR POSIÇÃO E VOLUME DE CADA TUBO
   for (int i = 0; i < quantidadeTubos; i++) {
-    //lcd.printf("\nTubo %d: mova a pipeta até o tubo\n", i + 1);
+    char buf[32];
+    sprintf(buf, "Tubo %d: mova a pipeta até o tubo", i + 1);
+    printLCD(buf, 0);  // ajusta o ‘0’ pra linha que você quiser
     modoPosicionamentoManual(tubos[i].pos);
-    tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo", 1, 1, 20);
+    tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo:", 1, 1, 20,0);
   }
 }

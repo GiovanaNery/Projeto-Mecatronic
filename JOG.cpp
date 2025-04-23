@@ -188,7 +188,10 @@ void modoPosicionamentoManual(Ponto3D &pos) {
 
         // debug serial a cada passo
         if (dirX || dirY) {
-            pc.printf("Pos X=%d Y=%d\r\n", pos.x, pos.y);
+            char buf[32];
+            sprintf(buf, "Pos X=%d Y=%d", pos.x, pos.y);
+            printLCD(buf, 0);
+            //pc.printf("Pos X=%d Y=%d\r\n", pos.x, pos.y);
         }
     }
 

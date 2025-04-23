@@ -21,23 +21,19 @@ void referenciar_EixoZ() {
   endstopZ_neg.mode(PullUp);
   printLCD("Início do referenciamento do eixo Z", 0);
 
-
-  //lcd.printf("Início do referenciamento do eixo Z...\n");
-
   // 1. Sobe até o topo (posição zero)
   while (endstopZ_neg.read() == 1) {
     z(-1);
   }
+  passos_Z = 0;
   printLCD("Fim do referenciamento do eixo Z", 0);
-
-  //lcd.printf("Fim do referenciamento do eixo Z.\n");
 }
 
 // Referenciando o EIXO X
 void referenciar_EixoX() {
   endstopX_neg.mode(PullUp);
 
-  //lcd.printf("Início do referenciamento do eixo X...\n");
+  printLCD("Início do referenciamento do eixo X", 0);
 
   // 1. Vai até o lado negativo
   while (endstopX_neg.read() == 1) {
@@ -45,7 +41,7 @@ void referenciar_EixoX() {
   }
   passos_X = 0;
 
-  //lcd.printf("Fim do referenciamento do eixo X.\n");
+  printLCD("Fim do referenciamento do eixo X.",0);
 
 }
 
@@ -53,13 +49,13 @@ void referenciar_EixoX() {
 void referenciar_EixoY() {
   endstopY_neg.mode(PullUp);
 
-  //lcd.printf("Início do referenciamento do eixo Y...\n");
+  printLCD("Início do referenciamento do eixo Y.",0);
 
   // 1. Vai até o lado negativo
   while (endstopY_neg.read() == 1) {
     y(-1); // move até o fim negativo
   }
   passos_Y = 0;
-  //lcd.printf("Fim do referenciamento do eixo Y.\n");
+  printLCD("Fim do referenciamento do eixo Y.", 0);
 }
 
