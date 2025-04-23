@@ -4,8 +4,8 @@
 #include "printLCD.h"
 
 // Definindo pinos dos sensores de fim de curso dos eixos
-DigitalIn endstopX_neg(PA_0); // X: lado esquerdo (zero)
-DigitalIn endstopX_pos(PA_1); // X: lado direito (máximo)
+DigitalIn endstopX_neg(PB_13); // X: lado esquerdo (zero)
+DigitalIn endstopX_pos(PB_15); // X: lado direito (máximo)
 DigitalIn endstopY_neg(D7); // Y: frente (zero)
 DigitalIn endstopY_pos(D6); // Y: trás (máximo)
 DigitalIn endstopZ_neg(PA_4); // Z: topo — define zero

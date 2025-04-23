@@ -15,9 +15,9 @@ DigitalIn botaoZmenos(D3); // z no sentido negativo
 DigitalOut passoZ(D6);
 DigitalOut direcaoZ(D5);
 // PINOS DO ENCODER
-InterruptIn encoderCLK(D6);   // sinal A
-DigitalIn encoderDT(D7);      // sinal B
-InterruptIn encoderBotao(D8); // botão (leitura manual)
+InterruptIn encoderCLK(PB_12);   // sinal A
+DigitalIn encoderDT(PB_11);      // sinal B
+InterruptIn encoderBotao(PA_11); // botão (leitura manual)
 
 // === VARIÁVEIS ===
 volatile int encoderValor = 1;

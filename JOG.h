@@ -5,6 +5,7 @@
 //#include "TextLCD.h"
 #include <string>
 #include <cstring> 
+extern DigitalOut Enable;
 
 // declaração de funções e variaveis
 // funções direções dos eixos 
