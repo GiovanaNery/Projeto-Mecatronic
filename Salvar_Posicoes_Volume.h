@@ -4,7 +4,7 @@
 #include "mbed.h"
 #include <string>
 #include <cstring>
-#include "TextLCD.h"
+//#include "TextLCD.h"
 #include "IHM.h"
 
 // declaração de funções e variaveis

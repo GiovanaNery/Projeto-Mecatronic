@@ -15,6 +15,9 @@ DigitalIn endstopZ_pos(PA_5); // Z: base — define limite inferior
 int curso_total_x = 0;
 int curso_total_y = 0;
 int curso_total_z = 0;
+int passos_X = 0;
+int passos_Y = 0;
+int passos_Z = 0;
 
 // Referenciamento do EIXO Z
 void referenciar_EixoZ() {

@@ -6,7 +6,7 @@
 // === Pinos e variáveis ===
 DigitalIn  botaoEmergencia(D2);
 DigitalOut buzzer(PB_5);
-DigitalOut ledVermelho(PC_10);
+extern DigitalOut ledVermelho;
 
 extern bool confirmado;
 bool emergenciaAtiva = false;

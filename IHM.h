@@ -2,7 +2,7 @@
 #define IHM_H
 
 #include "mbed.h"
-#include "TextLCD.h"
+//#include "TextLCD.h"
 #include <string>
 #include <cstring>
 
