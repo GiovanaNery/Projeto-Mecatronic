@@ -12,7 +12,10 @@ struct Ponto3D {
   int z;
 };
 
-LCD_I2C_I2C i2c_lcd(D14, D15);
+// 1) Instancia o barramento I2C em D14=SDA, D15=SCL
+I2C i2c_lcd(D14, D15);
+
+// 2) Cria o objeto LCD na linha I2C, endereço 0x4E, 20×4
 TextLCD_I2C lcd(&i2c_lcd, 0x4E, TextLCD::LCD20x4);
 
 // Função para testar impressão no LCD
