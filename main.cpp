@@ -1,10 +1,10 @@
 #include "IHM.h"
 #include "TextLCD.h"
-<<<<<<< HEAD
 #include "mbed.h"
-=======
 #include "Referenciamento.h"
 #include "printLCD.h"
+#include "JOG.h"
+
 
 // Struct local (caso você ainda não tenha separado)
 struct Ponto3D {
@@ -34,5 +34,3 @@ int main() {
         x(1);
     }
 }
->>>>>>> 9a39302b52e0eceae32b427ce6d9d04263407782
-
