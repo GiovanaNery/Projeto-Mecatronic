@@ -1,6 +1,6 @@
-//#include "TextLCD.h"
 #include "Referenciamento.h"
 #include "mbed.h"
+#include "IHM.h"
 #include "printLCD.h"
 
 float tempo = 0.0005;   // tempo para os eixos X e Y
@@ -9,20 +9,21 @@ float tempo_z = 0.001; // tempo para o eixo Z
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
 BusOut MOTOR_Z(D10, D11, D12, A5);
 Serial pc(USBTX, USBRX, 9600);
+DigitalOut Enable(D3); //Pino enable de liga e desliga 
 
 // Pinos conectados ao driver do motor no eixo X
 DigitalOut DIR_X(D2);   // Pino de direção (DIR)
 DigitalOut STEP_X(D4);  // Pino de passo (STEP)
 
 // Pinos conectados ao driver do eixo Y
-DigitalOut DIR_Y(D6);   // Direção
-DigitalOut STEP_Y(D7);  // Passo
+DigitalOut DIR_Y(D8);   // Direção
+DigitalOut STEP_Y(D9);  // Passo
 
 // === ENTRADAS ===
 AnalogIn joystickX(A5);
 AnalogIn joystickY(A4);
-DigitalIn botaoZmais(D6); // Pressionado = HIGH (sem pull-down)
-DigitalIn botaoZmenos(D7);
+extern DigitalIn botaoZmais; // Pressionado = HIGH (sem pull-down)
+extern DigitalIn botaoZmenos;
 
 // Criando parametros
 int Z_passo = 0;
@@ -65,6 +66,7 @@ void x(int direcao) {
 
     // Executa a quantidade absoluta de passos
     int totalPassos = abs(direcao);
+    Enable = 0; //ligado 
     for (int i = 0; i < totalPassos; i++) {
         STEP_X = 1;
         wait_us(100);      // Pulso HIGH
@@ -78,6 +80,7 @@ void x(int direcao) {
             passos_X--;
         }
     }
+    Enable = 1; //desliga 
 }
 
 // ACIONAR MOTOR EIXO Y - DRIVER
@@ -92,6 +95,7 @@ void y(int direcao) {
 
     // Executa os passos
     int totalPassos = abs(direcao);
+    Enable = 0; //ligado
     for (int i = 0; i < totalPassos; i++) {
         STEP_Y = 1;
         wait_us(100);  // Pulso HIGH
@@ -104,6 +108,7 @@ void y(int direcao) {
             passos_Y--;
         }
     }
+    Enable = 1; //desliga
 }
 
 // desligar as bobinas
