@@ -34,9 +34,10 @@ void configurarSistema() {
 
   // 4. DEFINIR POSIÇÃO E VOLUME DE CADA TUBO
   for (int i = 0; i < quantidadeTubos; i++) {
-    char buf[32];
-    sprintf(buf, "Tubo %d: mova a pipeta até o tubo", i + 1);
+    char buf[21];
+    sprintf(buf, "Tubo %d", i + 1);
     printLCD(buf, 0);  // ajusta o ‘0’ pra linha que você quiser
+    printLCD("mova a pipeta até o tubo",1);
     modoPosicionamentoManual(tubos[i].pos);
     tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo:", 1, 1, 20,0);
   }
