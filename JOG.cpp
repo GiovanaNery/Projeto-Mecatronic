@@ -123,37 +123,44 @@ void pararMotores() {
 // === INTERPOLAÇÃO LINEAR ENTRE DOIS PONTOS (X E Y) ===
 // Função de interpolação XY usando os contadores atuais
 void moverInterpoladoXY(int xDestino, int yDestino) {
-  Enable = 0;
+    // captura posição inicial
+    int xInicio = passos_X;
+    int yInicio = passos_Y;
+    int deltaX  = xDestino - xInicio;
+    int deltaY  = yDestino - yInicio;
+    int passos  = max(abs(deltaX), abs(deltaY));
 
-  int xInicio = passos_X;
-  int yInicio = passos_Y;
-  int deltaX = xDestino - xInicio;
-  int deltaY = yDestino - yInicio;
-  int passos = max(abs(deltaX), abs(deltaY));
+    for (int i = 1; i <= passos; i++) {
+        // calcula o ponto interpolado na reta (hipotenusa)
+        float t      = float(i) / passos;
+        int xAlvo    = int(xInicio + t * deltaX + 0.5f);
+        int yAlvo    = int(yInicio + t * deltaY + 0.5f);
 
-  for (int i = 1; i <= passos; i++) {
-    float t = float(i) / passos;
-    int xAlvo = int(xInicio + t * deltaX + 0.5f);
-    int yAlvo = int(yInicio + t * deltaY + 0.5f);
-    int dx = xAlvo - passos_X;
-    int dy = yAlvo - passos_Y;
+        // quantos passos faltam em cada eixo
+        int dx = (xAlvo > passos_X) ? +1 : (xAlvo < passos_X) ? -1 : 0;
+        int dy = (yAlvo > passos_Y) ? +1 : (yAlvo < passos_Y) ? -1 : 0;
 
-    // se for mexer em X e Y juntos, divide a velocidade pela metade
-    float vel = (dx && dy) ? (tempo / 2.0f) : tempo;
+        // seleciona delay; em diagonal, metade do tempo para cada eixo
+        float vel = (dx && dy) ? (tempo / 2.0f) : tempo;
 
-    if (dx > 0)
-      x(+1, vel);
-    else if (dx < 0)
-      x(-1, vel);
+        // se for mover no X, habilita driver, dá o pulso e desabilita
+        if (dx) {
+            Enable = 0;           // ativa driver
+            x(dx, vel);           // um pulso em X
+            Enable = 1;           // desativa driver
+        }
+        // se for mover no Y, mesmo esquema
+        if (dy) {
+            Enable = 0;           // ativa driver
+            y(dy, vel);           // um pulso em Y
+            Enable = 1;           // desativa driver
+        }
+    }
 
-    if (dy > 0)
-      y(+1, vel);
-    else if (dy < 0)
-      y(-1, vel);
-  }
-
-  Enable = 1;
+    // garante driver desligado ao final
+    Enable = 1;
 }
+
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
 extern volatile bool confirmado;
 extern DigitalIn endstopX_pos; // ativo em 0 quando bate no limite direito
