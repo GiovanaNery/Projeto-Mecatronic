@@ -5,13 +5,7 @@
 #include "mbed.h"
 #include "printLCD.h"
 #include "botao_emergencia.h"
-
-// Struct local (caso você ainda não tenha separado)
-struct Ponto3D {
-  int x;
-  int y;
-  int z;
-};
+#include "Salvar_Posicoes_Volume.h"
 
 // 1) Instancia o barramento I2C em D14=SDA, D15=SCL
 I2C i2c_lcd(D14, D15);
@@ -50,27 +44,20 @@ int main() {
   referenciar_EixoY();
   Enable = 1;
 
-  // laço principal
-  while (true) {
-    // 3) seleciona volume via encoder
-    int volume = selecionarVolumeEncoder("Volume:", 5, 0, 100, 0);
+  configurarSistema();
+  moverInterpoladoXY(posBecker.x, posBecker.y);
 
-    // 4) posiciona em X/Y com o joystick
-    Ponto3D pos = {0, 0, 0};
-    printLCD("Use joystick...", 0);
-    printLCD("", 1);
-    modoPosicionamentoManual();
+    // 2) Deslocamento para cada tubo usando moverInterpoladoXY fixo
+    for (int i = 0; i < quantidadeTubos; ++i) {
+        int alvoX = tubos[i].pos.x;
+        int alvoY = tubos[i].pos.y;
+        moverInterpoladoXY(alvoX, alvoY);
+        wait(1);
+        moverInterpoladoXY(posBecker.x, posBecker.y);
+        // se tiver função de dispensar volume, chame aqui:
+        // dispensarVolume(tubos[i].volumeML);
 
-    // 5) exibe confirmação final
-    char buf[32];
-    sprintf(buf, "Pronto! %d mL", volume);
-    printLCD(buf, 0);
-    wait(2);
-    char buf2[32];
-    sprintf(buf2, "X=%d Y=%d", passos_X, passos_Y);
-    printLCD(buf2, 1);
-    moverInterpoladoXY(18927 , 23615);
-    wait_ms(2000);
-  }
+        wait(1);
+    }
 }
 
