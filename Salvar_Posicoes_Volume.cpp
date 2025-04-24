@@ -26,7 +26,8 @@ int volumeBeckerML = 0;
 void configurarSistema() {
   setupEncoder();
   // 1. POSICIONAR BÉQUER
-  printLCD("Mova a pipeta até o béquer",0);
+  printLCD("   Mova a pipeta   ",0);
+  printLCD("    até o béquer    ",1);
   modoPosicionamentoManual(posBecker);
 
   // 3. DEFINIR QUANTIDADE DE TUBOS
@@ -37,7 +38,8 @@ void configurarSistema() {
     char buf[21];
     sprintf(buf, "Tubo %d", i + 1);
     printLCD(buf, 0);  // ajusta o ‘0’ pra linha que você quiser
-    printLCD("mova a pipeta até o tubo",1);
+    printLCD("   Mova a pipeta   ",0);
+  printLCD("    até o tubo    ",1);
     modoPosicionamentoManual(tubos[i].pos);
     tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo:", 1, 1, 20,0);
   }

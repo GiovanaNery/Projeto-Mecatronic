@@ -18,13 +18,16 @@ I2C i2c_lcd(D14, D15);
 TextLCD_I2C lcd(&i2c_lcd, 0x4E, TextLCD::LCD20x4);
 
 // Função para testar impressão no LCD
-void printLCD(const char *texto, int linha) {
-  lcd.locate(0, linha);
-  for (int i = 0; i < lcd.columns(); i++)
-    lcd.putc(' ');
-  lcd.locate(0, linha);
-  lcd.printf("%s", texto);
+// Exemplo usando TextLCD do Mbed
+void printLCD(const char* texto, int linha) {
+    // só limpa o LCD quando for escrever na linha 0
+    if (linha == 0) {
+        lcd.cls();        // limpa tudo
+    }
+    lcd.locate(0, linha); // posiciona no início da coluna 0, linha especificada
+    lcd.printf("%s", texto);
 }
+
 
 int main() {
   lcd.setCursor(TextLCD::CurOff_BlkOff);
@@ -43,15 +46,13 @@ int main() {
   // laço principal
   while (true) {
     // 3) seleciona volume via encoder
-    int volume = selecionarVolumeEncoder("Volume (mL):", 5, 0, 100, 0);
+    int volume = selecionarVolumeEncoder("Volume:", 5, 0, 100, 0);
 
     // 4) posiciona em X/Y com o joystick
     Ponto3D pos = {0, 0, 0};
     printLCD("Use joystick...", 0);
     printLCD("", 1);
-    Enable = 0; // habilita driver
     modoPosicionamentoManual(pos);
-    Enable = 1; // desabilita driver
 
     // 5) exibe confirmação final
     {
@@ -59,11 +60,13 @@ int main() {
       sprintf(buf, "Pronto! %d mL", volume);
       printLCD(buf, 0);
     }
+    wait(2);
     {
       char buf2[32];
       sprintf(buf2, "X=%d Y=%d", pos.x, pos.y);
       printLCD(buf2, 1);
     }
+    moverInterpoladoXY(100 , 100);
     wait_ms(2000);
   }
 }

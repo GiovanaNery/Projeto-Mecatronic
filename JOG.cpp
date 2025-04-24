@@ -121,7 +121,9 @@ void pararMotores() {
 
 // === INTERPOLAÇÃO LINEAR ENTRE DOIS PONTOS (X E Y) ===
 // Função de interpolação XY usando os contadores atuais
-void moverInterpoladoXY(int xDestino, int yDestino, int passos) {
+void moverInterpoladoXY(int xDestino, int yDestino) {
+    Enable = 0;
+    int passos = 150;
   // posição inicial
   int xInicio = passos_X;
   int yInicio = passos_Y;
@@ -146,6 +148,7 @@ void moverInterpoladoXY(int xDestino, int yDestino, int passos) {
       y(-1);
     }
   }
+  Enable = 1;
 }
 
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
