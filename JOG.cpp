@@ -55,46 +55,46 @@ void z(int direcao) // -1(subir) , +1(descer)
 
 // ACIONAR MOTOR EIXO X - DRIVER
 void x(int direcao) {
-    if (direcao == 0)
-        return;  // Sem movimento se direção = 0
+  if (direcao == 0)
+    return; // Sem movimento se direção = 0
 
-    // Define a direção (1 = horário, 0 = anti-horário)
-    DIR_X = (direcao > 0) ? 1 : 0;
-    // Tempo para o driver captar a direção
-    wait_us(100);
+  // Define a direção (1 = horário, 0 = anti-horário)
+  DIR_X = (direcao > 0) ? 1 : 0;
+  // Tempo para o driver captar a direção
+  wait_us(100);
 
-    int totalPassos = abs(direcao);
-    // Executa todos os pulsos sem ficar re-habilitando o driver
-    for (int i = 0; i < totalPassos; i++) {
-        STEP_X = 1;
-        wait_us(100);                           // largura do pulso
-        STEP_X = 0;
-        wait_us(int(tempo * 1e6f));             // intervalo entre pulsos
-        // Atualiza contador de passos
-        passos_X += (direcao > 0) ? +1 : -1;
-    }
+  int totalPassos = abs(direcao);
+  // Executa todos os pulsos sem ficar re-habilitando o driver
+  for (int i = 0; i < totalPassos; i++) {
+    STEP_X = 1;
+    wait_us(100); // largura do pulso
+    STEP_X = 0;
+    wait_us(int(tempo * 1e6f)); // intervalo entre pulsos
+    // Atualiza contador de passos
+    passos_X += (direcao > 0) ? +1 : -1;
+  }
 }
 
 // Função de acionamento do motor no eixo Y
 void y(int direcao) {
-    if (direcao == 0)
-        return;  // Sem movimento se direção = 0
+  if (direcao == 0)
+    return; // Sem movimento se direção = 0
 
-    // Define a direção (1 = horário, 0 = anti-horário)
-    DIR_Y = (direcao > 0) ? 1 : 0;
-    // Tempo para o driver captar a direção
-    wait_us(100);
+  // Define a direção (1 = horário, 0 = anti-horário)
+  DIR_Y = (direcao > 0) ? 1 : 0;
+  // Tempo para o driver captar a direção
+  wait_us(100);
 
-    int totalPassos = abs(direcao);
-    // Executa todos os pulsos sem re-habilitar o driver
-    for (int i = 0; i < totalPassos; i++) {
-        STEP_Y = 1;
-        wait_us(100);                           // largura do pulso
-        STEP_Y = 0;
-        wait_us(int(tempo * 1e6f));             // intervalo entre pulsos
-        // Atualiza contador de passos
-        passos_Y += (direcao > 0) ? +1 : -1;
-    }
+  int totalPassos = abs(direcao);
+  // Executa todos os pulsos sem re-habilitar o driver
+  for (int i = 0; i < totalPassos; i++) {
+    STEP_Y = 1;
+    wait_us(100); // largura do pulso
+    STEP_Y = 0;
+    wait_us(int(tempo * 1e6f)); // intervalo entre pulsos
+    // Atualiza contador de passos
+    passos_Y += (direcao > 0) ? +1 : -1;
+  }
 }
 
 // desligar as bobinas
@@ -150,6 +150,8 @@ void moverInterpoladoXY(int xDestino, int yDestino, int passos) {
 
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
 extern volatile bool confirmado;
+extern DigitalIn endstopX_pos; // ativo em 0 quando bate no limite direito
+extern DigitalIn endstopY_pos; // ativo em 0 quando bate no limite traseiro
 
 struct Ponto3D {
   int x, y, z;
@@ -159,45 +161,53 @@ float DEADZONE = 0.2f;
 
 // Modo de posicionamento manual
 void modoPosicionamentoManual(Ponto3D &pos) {
-    const int passosEntrePrints    = 10;
-    int       passosDesdeUltimoPrint = passosEntrePrints;
+  Enable = 0; // habilita o driver
 
-    Enable = 0;   // habilita o driver uma única vez antes do loop
-    while (!confirmado) {
-        // leitura do joystick centrada em zero
-        float xVal = joystickX.read() - 0.5f;
-        float yVal = joystickY.read() - 0.5f;
+  while (!confirmado) {
+    // 1) lê joystick
+    float xVal = joystickX.read() - 0.5f;
+    float yVal = joystickY.read() - 0.5f;
 
-        // detecta direção ultrapassando deadzone
-        int dirX = (fabs(xVal) > DEADZONE) ? (xVal > 0 ? +1 : -1) : 0;
-        int dirY = (fabs(yVal) > DEADZONE) ? (yVal > 0 ? +1 : -1) : 0;
+    // 2) determina dirX/dirY
+    int dirX = (fabs(xVal) > DEADZONE) ? (xVal > 0 ? +1 : -1) : 0;
+    int dirY = (fabs(yVal) > DEADZONE) ? (yVal > 0 ? +1 : -1) : 0;
 
-        // movimenta somente se dirX/dirY != 0
-        if (dirX) {
-            x(dirX);
-            pos.x += dirX;
-        }
-        if (dirY) {
-            y(dirY);
-            pos.y += dirY;
-        }
+    // 3) bloqueia os limites ZERO
+    if (dirX < 0 && pos.x <= 0)
+      dirX = 0;
+    if (dirY < 0 && pos.y <= 0)
+      dirY = 0;
 
-        // imprime no LCD a cada N passos, para não travar o loop
-        //if (dirX || dirY) {
-            //if (--passosDesdeUltimoPrint <= 0) {
-                //char buf[32];
-                //sprintf(buf, "Pos X=%d Y=%d", pos.x, pos.y);
-                //printLCD(buf, 0);
-                //passosDesdeUltimoPrint = passosEntrePrints;
-            //}
-        //}
+    // 4) bloqueia os limites MÁXIMOS (fim de curso pos)
+    if (dirX > 0 && endstopX_pos.read() == 0)
+      dirX = 0;
+    if (dirY > 0 && endstopY_pos.read() == 0)
+      dirY = 0;
+
+    // 5) executa os movimentos válidos
+    if (dirX) {
+      x(dirX);
+      pos.x += dirX;
     }
-    Enable = 1;   // desabilita o driver ao sair do loop
-
-    // print final
-    {
-        char buf[32];
-        sprintf(buf, "Final X:%d Y:%d", pos.x, pos.y);
-        printLCD(buf, 0);
+    if (dirY) {
+      y(dirY);
+      pos.y += dirY;
     }
+  }
+  // imprime no LCD a cada N passos, para não travar o loop
+  // if (dirX || dirY) {
+  // if (--passosDesdeUltimoPrint <= 0) {
+  // char buf[32];
+  // sprintf(buf, "Pos X=%d Y=%d", pos.x, pos.y);
+  // printLCD(buf, 0);
+  // passosDesdeUltimoPrint = passosEntrePrints;
+  //}
+  //}
+
+  Enable = 1; // desabilita o driver
+
+  // mostra posição final
+  char buf[32];
+  sprintf(buf, "Final X:%d Y:%d", pos.x, pos.y);
+  printLCD(buf, 0);
 }
