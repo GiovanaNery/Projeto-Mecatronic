@@ -1,10 +1,11 @@
 #include "mbed.h"
 #include "IHM.h"      
 #include "JOG.h"
+#include "mbed2/299/drivers/InterruptIn.h"
 #include "printLCD.h"
 
 // === Pinos e variáveis ===
-DigitalIn  botaoEmergencia(D2);
+InterruptIn botaoEmergencia(D2);
 DigitalOut buzzer(PB_5);
 extern DigitalOut ledVermelho;
 

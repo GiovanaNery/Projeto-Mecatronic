@@ -4,6 +4,7 @@
 #include "TextLCD.h"
 #include "mbed.h"
 #include "printLCD.h"
+#include "botao_emergencia.h"
 
 // Struct local (caso você ainda não tenha separado)
 struct Ponto3D {
@@ -32,6 +33,7 @@ void printLCD(const char* texto, int linha) {
 int main() {
   lcd.setCursor(TextLCD::CurOff_BlkOff);
   lcd.setBacklight(TextLCD::LightOn);
+  botaoEmergencia.fall(&modoEmergencia);  // attach the address of the flip function to the rising edge
   // 1) configura encoder + botões
   setupEncoder();
 
