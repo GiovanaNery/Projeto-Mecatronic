@@ -44,7 +44,7 @@ void referenciar_EixoX() {
 
   // 1. Vai até o lado negativo
   while (endstopX_neg.read() == 1) {
-    x(-1); // move até o fim negativo
+    x(-1 , tempo); // move até o fim negativo
   }
   passos_X = 0;
 
@@ -62,7 +62,7 @@ void referenciar_EixoY() {
 
   // 1. Vai até o lado negativo
   while (endstopY_neg.read() == 1) {
-    y(-1); // move até o fim negativo
+    y(-1 , tempo); // move até o fim negativo
   }
   passos_Y = 0;
   printLCD("Fim", 0);

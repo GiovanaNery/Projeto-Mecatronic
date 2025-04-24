@@ -52,21 +52,17 @@ int main() {
     Ponto3D pos = {0, 0, 0};
     printLCD("Use joystick...", 0);
     printLCD("", 1);
-    modoPosicionamentoManual(pos);
+    modoPosicionamentoManual();
 
     // 5) exibe confirmação final
-    {
-      char buf[32];
-      sprintf(buf, "Pronto! %d mL", volume);
-      printLCD(buf, 0);
-    }
+    char buf[32];
+    sprintf(buf, "Pronto! %d mL", volume);
+    printLCD(buf, 0);
     wait(2);
-    {
-      char buf2[32];
-      sprintf(buf2, "X=%d Y=%d", pos.x, pos.y);
-      printLCD(buf2, 1);
-    }
-    moverInterpoladoXY(100 , 100);
+    char buf2[32];
+    sprintf(buf2, "X=%d Y=%d", passos_X, passos_Y);
+    printLCD(buf2, 1);
+    moverInterpoladoXY(18927 , 23615);
     wait_ms(2000);
   }
 }

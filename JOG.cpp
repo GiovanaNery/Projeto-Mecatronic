@@ -3,8 +3,9 @@
 #include "mbed.h"
 #include "printLCD.h"
 
-float tempo = 0.001;   // tempo para os eixos X e Y
-float tempo_z = 0.001; // tempo para o eixo Z
+float tempo = 0.001;
+float tempo_interpolado = 0.001 / 2.0; // tempo para os eixos X e Y
+float tempo_z = 0.001;                 // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
 BusOut MOTOR_Z(D10, D11, D12, A5);
@@ -54,7 +55,7 @@ void z(int direcao) // -1(subir) , +1(descer)
 }
 
 // ACIONAR MOTOR EIXO X - DRIVER
-void x(int direcao) {
+void x(int direcao, float velocidade) {
   if (direcao == 0)
     return; // Sem movimento se direção = 0
 
@@ -69,14 +70,14 @@ void x(int direcao) {
     STEP_X = 1;
     wait_us(100); // largura do pulso
     STEP_X = 0;
-    wait_us(int(tempo * 1e6f)); // intervalo entre pulsos
+    wait_us(int(velocidade * 1e6f)); // intervalo entre pulsos
     // Atualiza contador de passos
     passos_X += (direcao > 0) ? +1 : -1;
   }
 }
 
 // Função de acionamento do motor no eixo Y
-void y(int direcao) {
+void y(int direcao, float velocidade) {
   if (direcao == 0)
     return; // Sem movimento se direção = 0
 
@@ -91,7 +92,7 @@ void y(int direcao) {
     STEP_Y = 1;
     wait_us(100); // largura do pulso
     STEP_Y = 0;
-    wait_us(int(tempo * 1e6f)); // intervalo entre pulsos
+    wait_us(int(velocidade * 1e6f)); // intervalo entre pulsos
     // Atualiza contador de passos
     passos_Y += (direcao > 0) ? +1 : -1;
   }
@@ -122,35 +123,37 @@ void pararMotores() {
 // === INTERPOLAÇÃO LINEAR ENTRE DOIS PONTOS (X E Y) ===
 // Função de interpolação XY usando os contadores atuais
 void moverInterpoladoXY(int xDestino, int yDestino) {
-    Enable = 0;
-    int passos = 150;
-  // posição inicial
+  Enable = 0;
+
   int xInicio = passos_X;
   int yInicio = passos_Y;
+  int deltaX = xDestino - xInicio;
+  int deltaY = yDestino - yInicio;
+  int passos = max(abs(deltaX), abs(deltaY));
 
   for (int i = 1; i <= passos; i++) {
-    float t = (float)i / passos;
-    int xAlvo = (int)(xInicio + t * (xDestino - xInicio) + 0.5f);
-    int yAlvo = (int)(yInicio + t * (yDestino - yInicio) + 0.5f);
-
+    float t = float(i) / passos;
+    int xAlvo = int(xInicio + t * deltaX + 0.5f);
+    int yAlvo = int(yInicio + t * deltaY + 0.5f);
     int dx = xAlvo - passos_X;
     int dy = yAlvo - passos_Y;
 
-    if (dx > 0) {
-      x(+1);
-    } else if (dx < 0) {
-      x(-1);
-    }
+    // se for mexer em X e Y juntos, divide a velocidade pela metade
+    float vel = (dx && dy) ? (tempo / 2.0f) : tempo;
 
-    if (dy > 0) {
-      y(+1);
-    } else if (dy < 0) {
-      y(-1);
-    }
+    if (dx > 0)
+      x(+1, vel);
+    else if (dx < 0)
+      x(-1, vel);
+
+    if (dy > 0)
+      y(+1, vel);
+    else if (dy < 0)
+      y(-1, vel);
   }
+
   Enable = 1;
 }
-
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
 extern volatile bool confirmado;
 extern DigitalIn endstopX_pos; // ativo em 0 quando bate no limite direito
@@ -163,54 +166,46 @@ float TEMPO_BASE = 0.005f; // intervalo base entre passos (s)
 float DEADZONE = 0.2f;
 
 // Modo de posicionamento manual
-void modoPosicionamentoManual(Ponto3D &pos) {
-  Enable = 0; // habilita o driver
+void modoPosicionamentoManual() {
+  Enable = 0;         // habilita o driver
+  confirmado = false; // reseta o flag antes de entrar no loop
 
   while (!confirmado) {
-    // 1) lê joystick
+    // 1) lê joystick (centra em zero)
     float xVal = joystickX.read() - 0.5f;
     float yVal = joystickY.read() - 0.5f;
 
-    // 2) determina dirX/dirY
+    // 2) define direção só se passar da deadzone
     int dirX = (fabs(xVal) > DEADZONE) ? (xVal > 0 ? +1 : -1) : 0;
     int dirY = (fabs(yVal) > DEADZONE) ? (yVal > 0 ? +1 : -1) : 0;
 
-    // 3) bloqueia os limites ZERO
-    if (dirX < 0 && pos.x <= 0)
+    // 3) trava os limites em zero
+    if (dirX < 0 && passos_X <= 0)
       dirX = 0;
-    if (dirY < 0 && pos.y <= 0)
+    if (dirY < 0 && passos_Y <= 0)
       dirY = 0;
 
-    // 4) bloqueia os limites MÁXIMOS (fim de curso pos)
+    // 4) trava os limites no fim de curso
     if (dirX > 0 && endstopX_pos.read() == 0)
       dirX = 0;
     if (dirY > 0 && endstopY_pos.read() == 0)
       dirY = 0;
 
-    // 5) executa os movimentos válidos
-    if (dirX) {
-      x(dirX);
-      pos.x += dirX;
-    }
-    if (dirY) {
-      y(dirY);
-      pos.y += dirY;
-    }
+    // 5) calcula a “velocidade” a usar:
+    //    - se mexer nos dois eixos ao mesmo tempo, divide por 2
+    float vel = (dirX && dirY) ? (tempo / 2.0f) : tempo;
+
+    // 6) dispara os pulsos
+    if (dirX)
+      x(dirX, vel);
+    if (dirY)
+      y(dirY, vel);
   }
-  // imprime no LCD a cada N passos, para não travar o loop
-  // if (dirX || dirY) {
-  // if (--passosDesdeUltimoPrint <= 0) {
-  // char buf[32];
-  // sprintf(buf, "Pos X=%d Y=%d", pos.x, pos.y);
-  // printLCD(buf, 0);
-  // passosDesdeUltimoPrint = passosEntrePrints;
-  //}
-  //}
 
   Enable = 1; // desabilita o driver
 
-  // mostra posição final
+  // exibe posição final no LCD
   char buf[32];
-  sprintf(buf, "Final X:%d Y:%d", pos.x, pos.y);
+  sprintf(buf, "Final X:%d Y:%d", passos_X, passos_Y);
   printLCD(buf, 0);
 }

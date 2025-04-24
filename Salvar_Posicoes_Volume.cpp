@@ -3,6 +3,7 @@
 #include "mbed.h"
 #include "IHM.h"
 #include "printLCD.h"
+#include "Referenciamento.h"
 
 // === ESTRUTURAS ===
 struct Ponto3D {
@@ -28,7 +29,10 @@ void configurarSistema() {
   // 1. POSICIONAR BÉQUER
   printLCD("   Mova a pipeta   ",0);
   printLCD("    até o béquer    ",1);
-  modoPosicionamentoManual(posBecker);
+  modoPosicionamentoManual();
+  posBecker.x = passos_X;
+  posBecker.y = passos_Y;
+  posBecker.z = passos_Z;
 
   // 3. DEFINIR QUANTIDADE DE TUBOS
   quantidadeTubos = selecionarVolumeEncoder("Quantidade de tubos:", 1, 1, MAX_TUBOS,1);
@@ -39,8 +43,11 @@ void configurarSistema() {
     sprintf(buf, "Tubo %d", i + 1);
     printLCD(buf, 0);  // ajusta o ‘0’ pra linha que você quiser
     printLCD("   Mova a pipeta   ",0);
-  printLCD("    até o tubo    ",1);
-    modoPosicionamentoManual(tubos[i].pos);
+    printLCD("    até o tubo    ",1);
+    modoPosicionamentoManual();
+    tubos[i].pos.x = passos_X;           // usa o contador global
+    tubos[i].pos.y = passos_Y;
+    tubos[i].pos.z = passos_Z;
     tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo:", 1, 1, 20,0);
   }
 }
