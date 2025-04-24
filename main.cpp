@@ -31,9 +31,14 @@ void printLCD(const char* texto, int linha) {
 
 
 int main() {
+  //configuracão LCD
   lcd.setCursor(TextLCD::CurOff_BlkOff);
   lcd.setBacklight(TextLCD::LightOn);
-  botaoEmergencia.fall(&modoEmergencia);  // attach the address of the flip function to the rising edge
+
+  //configuracão botão de emergencia
+  botaoEmergencia.mode(PullDown);
+  botaoEmergencia.fall(&modoEmergencia);  
+
   // 1) configura encoder + botões
   setupEncoder();
 
