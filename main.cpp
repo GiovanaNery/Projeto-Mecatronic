@@ -45,7 +45,9 @@ int main() {
   Enable = 1;
 
   configurarSistema();
+  printLCD("Executando...",0);
   moverInterpoladoXY(posBecker.x, posBecker.y);
+
 
     // 2) Deslocamento para cada tubo usando moverInterpoladoXY fixo
     for (int i = 0; i < quantidadeTubos; ++i) {
