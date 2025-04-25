@@ -59,5 +59,7 @@ int main() {
 
         wait(1);
     }
+    printLCD(" Processo concluido ", 0);
+    printLCD("    com sucesso!    ", 1);
 }
 

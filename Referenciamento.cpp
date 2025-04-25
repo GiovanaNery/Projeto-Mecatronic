@@ -22,7 +22,7 @@ int passos_Z = 0;
 // Referenciamento do EIXO Z
 void referenciar_EixoZ() {
   endstopZ_neg.mode(PullUp);
-  printLCD("   referenciamento   ", 0);
+  printLCD("   Referenciamento   ", 0);
   printLCD("         do         ", 1);
   printLCD("       Eixo Z       ", 2);
 
@@ -38,7 +38,7 @@ void referenciar_EixoZ() {
 void referenciar_EixoX() {
   endstopX_neg.mode(PullUp);
 
-  printLCD("   referenciamento   ", 0);
+  printLCD("   Referenciamento   ", 0);
   printLCD("         do         ", 1);
   printLCD("       Eixo X       ", 2);
 
@@ -56,7 +56,7 @@ void referenciar_EixoX() {
 void referenciar_EixoY() {
   endstopY_neg.mode(PullUp);
 
-  printLCD("   referenciamento   ", 0);
+  printLCD("   Referenciamento   ", 0);
   printLCD("         do         ", 1);
   printLCD("       Eixo Y       ", 2);
 

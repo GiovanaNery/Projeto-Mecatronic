@@ -27,7 +27,9 @@ void modoEmergencia() {
     tickerPiscar.attach(&alternarLedVermelho, 0.3);  // 3) começa a piscar o LED vermelho
 
     // 4) mostra mensagem de interrupção
-    printLCD("ATENCAO: Operacão Interrompida!", 0);
+    printLCD("       ATENCAO:     ", 0);
+    printLCD("      Operacao      ", 1);
+    printLCD("    Interrompida!   ", 2);
     wait(2);
     printLCD("MODO DE EMERGENCIA", 0);
 
@@ -40,7 +42,8 @@ void modoEmergencia() {
     ledVermelho = 0;         // garante o LED desligado
 
     // 6) solicita confirmação de saída do modo emergência (buzzer ainda ativo)
-    printLCD("Confirmar Saída do Modo de Emergencia?", 0);
+    printLCD("Confirmar Saída do", 0);
+    printLCD("Modo de Emergencia?", 1);
     confirmado = false;
     while (!confirmado) {
         // aqui o LED já está apagado, buzzer continua som
