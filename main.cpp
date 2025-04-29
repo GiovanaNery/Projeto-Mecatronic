@@ -6,6 +6,7 @@
 #include "botao_emergencia.h"
 #include "mbed.h"
 #include "printLCD.h"
+#include "Acionapipeta.h"
 
 // 1) Instancia o barramento I2C em D14=SDA, D15=SCL
 I2C i2c_lcd(D14, D15);
@@ -46,20 +47,28 @@ int main() {
   configurarSistema();
   printLCD("Executando...", 0);
   wait(1);
-  moverInterpoladoXY(posBecker.x, posBecker.y);
-  wait(1);
+
 
   // 2) Deslocamento para cada tubo usando moverInterpoladoXY fixo
   for (int i = 0; i < quantidadeTubos; ++i) {
     int alvoX = tubos[i].pos.x;
     int alvoY = tubos[i].pos.y;
-    moverInterpoladoXY(alvoX, alvoY);
-    wait(1);
-    moverInterpoladoXY(posBecker.x, posBecker.y);
-    // se tiver função de dispensar volume, chame aqui:
-    // dispensarVolume(tubos[i].volumeML);
-
-    wait(1);
+    char buf[21];  // LCD 16x2: 16 chars + '\0'
+    // Linha 0: número do tubo
+    sprintf(buf, "Executando tubo %d", i + 1);
+    printLCD(buf, 0);
+    printLCD("Ml: 0", 1);
+    for (int ml = 0 ; ml < tubos[i].volumeML; ++ml){
+        moverInterpoladoXY(posBecker.x, posBecker.y);
+        wait(0.5);
+        moverInterpoladoXY(alvoX, alvoY);
+        wait(0.2);
+        coleta_liberacao();
+        sprintf(buf, "Ml: %d", ml + 1);
+        printLCD(buf, 1);
+        wait(0.2);
+    }
+    wait(0.5);
   }
   // Som e mensagem para sinalizar término
   printLCD(" Processo concluido ", 0);
