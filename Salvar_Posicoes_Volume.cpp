@@ -38,7 +38,7 @@ void configurarSistema() {
   quantidadeTubos = selecionarVolumeEncoder("Quantidade de tubos:", 1, 1, MAX_TUBOS,1);
 
   // 4. DEFINIR POSIÇÃO E VOLUME DE CADA TUBO
-  for (int i = 1; i < quantidadeTubos; i++) {
+  for (int i = 0; i < quantidadeTubos; i++) {
     char buf[21];
     sprintf(buf, "Tubo %d", i + 1);
     printLCD(buf, 0);  // ajusta o ‘0’ pra linha que você quiser
