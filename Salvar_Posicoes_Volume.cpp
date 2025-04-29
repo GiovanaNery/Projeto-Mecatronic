@@ -28,7 +28,7 @@ void configurarSistema() {
   setupEncoder();
   // 1. POSICIONAR BÉQUER
   printLCD("   Mova a pipeta   ",0);
-  printLCD("    até o béquer    ",1);
+  printLCD("    ate o bequer    ",1);
   modoPosicionamentoManual();
   posBecker.x = passos_X;
   posBecker.y = passos_Y;
@@ -43,7 +43,7 @@ void configurarSistema() {
     sprintf(buf, "Tubo %d", i + 1);
     printLCD(buf, 0);  // ajusta o ‘0’ pra linha que você quiser
     printLCD("   Mova a pipeta   ",0);
-    printLCD("    até o tubo    ",1);
+    printLCD("    ate o tubo    ",1);
     modoPosicionamentoManual();
     tubos[i].pos.x = passos_X;           // usa o contador global
     tubos[i].pos.y = passos_Y;
