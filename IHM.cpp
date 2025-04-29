@@ -3,9 +3,9 @@
 #include "printLCD.h"
 
 // Pinos para os LEDs
-DigitalOut ledVermelho(A0);
-DigitalOut ledVerde(A1);
-DigitalOut ledAmarelo(A2);
+DigitalOut ledVermelho(A2);
+DigitalOut ledAmarelo(A4);
+DigitalOut ledVerde(A5);
 // Pino fixo da chave seletora
 DigitalIn seletor(D5);
 // Pinos dos botões
