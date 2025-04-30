@@ -96,7 +96,7 @@ void chaveseletora(float &tempo) {
   if (seletor == 0) {
     tempo = 0.01; // Devagar
   } else {
-    tempo = 0.002; // Rápido
+    tempo = 0.001; // Rápido
   }
 }
 

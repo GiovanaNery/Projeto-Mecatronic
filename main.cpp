@@ -99,6 +99,6 @@ int main() {
   printLCD(" Processo concluido ", 0);
   printLCD("    com sucesso!    ", 1);
   buzzer = 1;
-  wait(3); // 100 ms de buzzer ligado
+  wait(2); // 2s de buzzer ligado
   buzzer = 0;
 }
