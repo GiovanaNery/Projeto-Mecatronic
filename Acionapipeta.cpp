@@ -4,7 +4,7 @@
 int tempo_pega = 2;
 
 // Definindo os pinos 
-DigitalOut Acionar(PC_9);
+DigitalOut Acionar(PC_6);
 
 // função para acionar a pipeta
 void coleta_liberacao()
