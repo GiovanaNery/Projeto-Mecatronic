@@ -117,16 +117,6 @@ void acenderLed(
     ledAmarelo = 1;
   }
 }
-// COMO USAR A FUNCAO:
-// int main() {
-//  Acende somente o LED vermelho
-//    acenderLed('y');
-
-// Loop infinito para manter o programa rodando
-//    while (true) {
-// Não faz mais nada, apenas mantém o LED vermelho aceso
-//   }
-//}
 
 // piscar LEDS por cor
 void piscarLed(char cor, bool &parar) {
