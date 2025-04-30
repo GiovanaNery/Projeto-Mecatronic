@@ -34,12 +34,15 @@ int main() {
   lcd.setCursor(TextLCD::CurOff_BlkOff);
   lcd.setBacklight(TextLCD::LightOn);
 
+  // configura encoder + botões
+  setupEncoder();
+
   // configuracão botão de emergencia
   botaoEmergencia.mode(PullDown);
   botaoEmergencia.fall(&modoEmergencia);
 
   // configura encoder + botões
-  setupEncoder();
+  //setupEncoder();
 
   // 1) perguntamos se quer iniciar o referenciamento
   printLCD("   Pressione para   ", 0);
