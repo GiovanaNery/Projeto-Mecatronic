@@ -9,7 +9,7 @@ DigitalIn endstopX_pos(PB_15); // X: lado direito (máximo)
 DigitalIn endstopY_neg(D6); // Y: frente (zero)
 DigitalIn endstopY_pos(D7); // Y: trás (máximo)
 DigitalIn endstopZ_neg(PA_4); // Z: topo — define zero
-DigitalIn endstopZ_pos(PA_5); // Z: base — define limite inferior
+DigitalIn endstopZ_pos(PA_13); // Z: base — define limite inferior
 
 // Variáveis globais para armazenar o curso total
 int curso_total_x = 0;
@@ -31,7 +31,7 @@ void referenciar_EixoZ() {
     z(-1);
   }
   passos_Z = 0;
-  printLCD("Fim", 0);
+  printLCD("Fim do Refenciamento", 0);
 }
 
 // Referenciando o EIXO X
@@ -48,7 +48,7 @@ void referenciar_EixoX() {
   }
   passos_X = 0;
 
-  printLCD("Fim",0);
+  printLCD("Fim do Refenciamento",0);
 
 }
 
@@ -65,6 +65,6 @@ void referenciar_EixoY() {
     y(-1 , tempo); // move até o fim negativo
   }
   passos_Y = 0;
-  printLCD("Fim", 0);
+  printLCD("Fim do Refenciamento", 0);
 }
 

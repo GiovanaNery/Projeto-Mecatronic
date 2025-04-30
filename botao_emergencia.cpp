@@ -5,7 +5,7 @@
 
 // === Pinos e variáveis ===
 InterruptIn botaoEmergencia(D2);
-DigitalOut buzzer(PA_12);
+DigitalOut buzzer(PB_2);
 extern DigitalOut ledVermelho;
 
 extern bool confirmado;

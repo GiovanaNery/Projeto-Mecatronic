@@ -142,7 +142,7 @@ void piscarLed(char cor, bool &parar) {
   if (led != NULL) { // led liga e desliga de 0.3 em 0.3
     while (!parar) {
       *led = 1; //*led acende o valor apontado, ou seja, o LED que foi escolhido
-                //com base no char cor.
+                // com base no char cor.
       wait(0.3); // LED ligado
       *led = 0;
       wait(0.3); // LED desligado
