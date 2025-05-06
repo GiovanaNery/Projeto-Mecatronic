@@ -11,7 +11,7 @@ float tempo_interpolado = 0.001 / 2.0; // tempo para os eixos X e Y
 //float tempo_z = 0.001;                 // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
-BusOut MOTOR_Z(D10, D11, D12, A5);
+BusOut MOTOR_Z(D10, D11, D12, D13);
 Serial pc(USBTX, USBRX, 9600);
 DigitalOut Enable(D3); // Pino enable de liga e desliga
 
@@ -187,6 +187,7 @@ struct Ponto3D {
 float TEMPO_BASE = 0.005f; // intervalo base entre passos (s)
 float DEADZONE = 0.2f;
 
+float velocidade_jog = 0.02;
 // Modo de posicionamento manual
 void modoPosicionamentoManual() {
   Enable = 0;         // habilita o driver
