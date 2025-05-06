@@ -57,6 +57,8 @@ int main() {
   // 2) homing dos eixos X e Y
   acenderLed('y'); // liga apenas o amarelo
   Enable = 0;
+  printLCD("Refer. eixo Z...", 0);
+  referenciar_EixoZ();
   printLCD("Refer. eixo X...", 0);
   referenciar_EixoX();
   printLCD("Refer. eixo Y...", 0);
@@ -83,14 +85,22 @@ int main() {
     printLCD(buf, 0);
     printLCD("mL: 0", 1);
     for (int ml = 0; ml < tubos[i].volumeML; ++ml) {
-      moverInterpoladoXY(posBecker.x, posBecker.y);
-      wait(0.5);
-      coleta_liberacao();
-      wait(0.5);
+      mover_Z(0);                                   // zerando eixo Z
+      moverInterpoladoXY(posBecker.x, posBecker.y); // movendo pro becker
+      wait(0.1);
+      mover_Z(posBecker.z); // move o Z
+      wait(0.1);
+      coleta_liberacao(); // coletando do becker
+      wait(0.1);
+      mover_Z(0); // zera o Z
+      wait(0.1);
       moverInterpoladoXY(tubos[i].pos.x, tubos[i].pos.y);
-      wait(0.2);
-      coleta_liberacao();
-      wait(0.5);
+      wait(0.1); // indo até o primeiro tubo
+      mover_Z(tubos[i].pos.z);
+      wait(0.1);
+      coleta_liberacao(); // dispensando
+      wait(0.1);
+      mover_Z(0); // zera o Z
       sprintf(buf, "mL: %d", ml + 1);
       printLCD(buf, 1);
       wait(0.2);

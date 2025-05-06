@@ -238,3 +238,15 @@ void modoPosicionamentoManual() {
   sprintf(buf, "Final X:%d Y:%d", passos_X, passos_Y);
   printLCD(buf, 0);
 }
+
+void mover_Z(float posZ){
+    while(passos_Z != posZ){
+        if (passos_Z >= posZ) {
+            z(-1,tempo);
+        }
+        if (passos_Z <= posZ) {
+            z(1,tempo);
+        }
+
+    }
+}

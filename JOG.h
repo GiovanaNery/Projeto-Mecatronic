@@ -21,6 +21,7 @@ void pararMotores();
 //funções para mover motor por interpolação
 void moverInterpoladoXY(int x1, int y1);
 void modoPosicionamentoManual();
+void mover_Z(float posZ);
 
 #endif
         
