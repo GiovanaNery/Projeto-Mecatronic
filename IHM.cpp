@@ -92,11 +92,12 @@ void setupEncoder() {
 }
 
 // chave seletora - para definir a velocidade que quero usar
-void chaveseletora(float &tempo) {
+extern float velocidade_jog;
+void chaveseletora() {
   if (seletor == 0) {
-    tempo = 0.01; // Devagar
+      velocidade_jog = 0.01; //devagar
   } else {
-    tempo = 0.001; // Rápido
+      velocidade_jog = 0.001; // Rápido
   }
 }
 
@@ -146,29 +147,3 @@ void piscarLed(char cor, bool &parar) {
 // pode rodar em paralelo
 //  Quando quiser parar:
 // pararPiscar = true;
-
-// Botão de movimentacão do eixo Z
-void controlarEixoZ() {
-  // Configura pull-up interno (botão fechado para GND)
-  botaoZmais.mode(PullUp);
-  botaoZmenos.mode(PullUp);
-
-  while (true) {
-    if (botaoZmais == 0) {
-      direcaoZ = 1; // Sentido positivo (desce)
-      passoZ = 1;
-      wait_us(500);
-      passoZ = 0;
-      wait_us(500);
-    } else if (botaoZmenos == 0) {
-      direcaoZ = 0; // Sentido negativo
-      passoZ = 1;
-      wait_us(500);
-      passoZ = 0;
-      wait_us(500);
-    } else {
-      // Nenhum botão pressionado → motor parado
-      passoZ = 0;
-    }
-  }
-}

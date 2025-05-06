@@ -10,7 +10,7 @@
 //extern I2C i2c_lcd;
 
 // Declaração externa do LCD
-//extern TextLCD_I2C lcd;
+extern float velocidade_jog;
 
 // declaração de funções e variaveis
 void encoderGiro();
@@ -19,7 +19,7 @@ void setupEncoder();
 void setupEncoder();
 int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor, int maxValor, int ind);
 void printLCD(const char* texto, int linha);
-void chaveseletora(DigitalIn &seletor, float &tempo);
+void chaveseletora();
 void acenderLed(char cor); 
 void piscarLed(char cor, bool& parar);
 void controlarEixoZ();

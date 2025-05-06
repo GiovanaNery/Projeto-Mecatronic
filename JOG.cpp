@@ -34,7 +34,7 @@ extern DigitalIn seletor;
 int Z_passo = 0;
 
 // ACIONAR MOTOR EIXO Z - MOSFET
-void z(int direcao) // -1(subir) , +1(descer)
+void z(int direcao, float velocidade) // -1(subir) , +1(descer)
 {
   // subir
   if (direcao < 0) {
@@ -44,7 +44,7 @@ void z(int direcao) // -1(subir) , +1(descer)
       Z_passo = 0;
     }
     passos_Z++;
-    wait(tempo);
+    wait_us(int(velocidade * 1e6f));
   }
   // Descer
   if (direcao > 0) {
@@ -54,7 +54,7 @@ void z(int direcao) // -1(subir) , +1(descer)
       Z_passo = 3;
     }
     passos_Z--;
-    wait(tempo);
+    wait_us(int(velocidade * 1e6f));
   }
 }
 
@@ -193,6 +193,7 @@ void modoPosicionamentoManual() {
   confirmado = false; // reseta o flag antes de entrar no loop
 
   while (!confirmado) {
+    chaveseletora();
     // 1) lê joystick (centra em zero)
     float xVal = joystickX.read() - 0.5f;
     float yVal = joystickY.read() - 0.5f;
@@ -215,13 +216,19 @@ void modoPosicionamentoManual() {
 
     // 5) calcula a “velocidade” a usar:
     //    - se mexer nos dois eixos ao mesmo tempo, divide por 2
-    float vel = (dirX && dirY) ? (tempo / 2.0f) : tempo;
+    float vel = (dirX && dirY) ? (velocidade_jog / 2.0f) : velocidade_jog;
 
     // 6) dispara os pulsos
     if (dirX)
       x(dirX, vel);
     if (dirY)
       y(dirY, vel);
+
+    else if (botaoZmais == 1) {
+      z(1, velocidade_jog);
+    } else if (botaoZmenos == 1) {
+      z(-1, velocidade_jog);
+    }
   }
 
   Enable = 1; // desabilita o driver
