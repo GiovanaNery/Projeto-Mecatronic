@@ -8,13 +8,7 @@
 InterruptIn  botaoEmergencia(D2);
 volatile bool pedidoEmergencia = false;
 
-<<<<<<< HEAD
-// === Pinos e variáveis ===
-InterruptIn botaoEmergencia(D2);
-DigitalOut buzzer(PB_2);
-=======
 // LEDs externos definidos em IHM.cpp
->>>>>>> a6a84bbed911adf9b699a22f0d40446b8cb42052
 extern DigitalOut ledVermelho;
 extern DigitalOut ledVerde;
 
