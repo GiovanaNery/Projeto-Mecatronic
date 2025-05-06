@@ -10,7 +10,7 @@ extern float tempo;
 extern float tempo_interpolado;
 // declaração de funções e variaveis
 // funções direções dos eixos 
-void z(int direcao);
+void z(int direcao, float velocidade);
 void x(int direcao , float velocidade);
 void y(int direcao , float velocidade);
 // funções para desligar o motor
