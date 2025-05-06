@@ -1,3 +1,4 @@
+#include "Acionapipeta.h"
 #include "IHM.h"
 #include "JOG.h"
 #include "Referenciamento.h"
@@ -6,7 +7,11 @@
 #include "botao_emergencia.h"
 #include "mbed.h"
 #include "printLCD.h"
-#include "Acionapipeta.h"
+
+extern DigitalOut ledVermelho;
+extern DigitalOut ledAmarelo;
+extern DigitalOut ledVerde;
+DigitalOut led(PA_5);
 
 // 1) Instancia o barramento I2C em D14=SDA, D15=SCL
 I2C i2c_lcd(D14, D15);
@@ -29,14 +34,29 @@ int main() {
   lcd.setCursor(TextLCD::CurOff_BlkOff);
   lcd.setBacklight(TextLCD::LightOn);
 
+  // configura encoder + botões
+  setupEncoder();
+
   // configuracão botão de emergencia
   botaoEmergencia.mode(PullDown);
   botaoEmergencia.fall(&modoEmergencia);
 
-  // 1) configura encoder + botões
-  setupEncoder();
+  // configura encoder + botões
+  //setupEncoder();
+
+  // 1) perguntamos se quer iniciar o referenciamento
+  printLCD("   Pressione para   ", 0);
+  printLCD("     iniciar o      ", 1);
+  printLCD("  referenciamento   ", 2);
+  while (!confirmado) {
+    led = !led;
+    wait(0.5);
+    // espera o encoder ser pressionado
+  }
+  wait_ms(300); // debounce
 
   // 2) homing dos eixos X e Y
+  acenderLed('y'); // liga apenas o amarelo
   Enable = 0;
   printLCD("Refer. eixo X...", 0);
   referenciar_EixoX();
@@ -44,18 +64,32 @@ int main() {
   referenciar_EixoY();
   Enable = 1;
 
+  // Ao terminar o homing, troca para o verde por 3 segundos
+  acenderLed('g'); // liga apenas o verde
+  wait(2.0);       // mantém o verde por 3 segundos
+
+  // Desliga todos os LEDs e continua o programa
+  ledVermelho = ledVerde = ledAmarelo = 0;
+
   configurarSistema();
   printLCD("Executando...", 0);
+  acenderLed('y'); // liga apenas o amarelo
   wait(1);
-
 
   // 2) Deslocamento para cada tubo usando moverInterpoladoXY fixo
   for (int i = 0; i < quantidadeTubos; ++i) {
+<<<<<<< HEAD
     char buf[21];  // LCD 16x2: 16 chars + '\0'
+=======
+    int alvoX = tubos[i].pos.x;
+    int alvoY = tubos[i].pos.y;
+    char buf[21]; // LCD 16x2: 16 chars + '\0'
+>>>>>>> a6a84bbed911adf9b699a22f0d40446b8cb42052
     // Linha 0: número do tubo
     sprintf(buf, "Executando tubo %d", i + 1);
     printLCD(buf, 0);
     printLCD("mL: 0", 1);
+<<<<<<< HEAD
     for (int ml = 0 ; ml < tubos[i].volumeML; ++ml){
         moverInterpoladoXY(posBecker.x, posBecker.y);
         wait(0.5);
@@ -68,13 +102,29 @@ int main() {
         sprintf(buf, "mL: %d", ml + 1);
         printLCD(buf, 1);
         wait(0.2);
+=======
+    for (int ml = 0; ml < tubos[i].volumeML; ++ml) {
+      moverInterpoladoXY(posBecker.x, posBecker.y);
+      wait(0.5);
+      moverInterpoladoXY(alvoX, alvoY);
+      wait(0.2);
+      coleta_liberacao();
+      sprintf(buf, "mL: %d", ml + 1);
+      printLCD(buf, 1);
+      wait(0.2);
+>>>>>>> a6a84bbed911adf9b699a22f0d40446b8cb42052
     }
     wait(0.5);
   }
   // Som e mensagem para sinalizar término
+  acenderLed('g'); // liga apenas o verde
   printLCD(" Processo concluido ", 0);
   printLCD("    com sucesso!    ", 1);
   buzzer = 1;
+<<<<<<< HEAD
   wait(2); // 100 ms de buzzer ligado
+=======
+  wait(2); // 2s de buzzer ligado
+>>>>>>> a6a84bbed911adf9b699a22f0d40446b8cb42052
   buzzer = 0;
 }

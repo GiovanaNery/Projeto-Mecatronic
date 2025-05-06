@@ -96,7 +96,7 @@ void chaveseletora(float &tempo) {
   if (seletor == 0) {
     tempo = 0.01; // Devagar
   } else {
-    tempo = 0.002; // Rápido
+    tempo = 0.001; // Rápido
   }
 }
 
@@ -117,16 +117,6 @@ void acenderLed(
     ledAmarelo = 1;
   }
 }
-// COMO USAR A FUNCAO:
-// int main() {
-//  Acende somente o LED vermelho
-//    acenderLed('y');
-
-// Loop infinito para manter o programa rodando
-//    while (true) {
-// Não faz mais nada, apenas mantém o LED vermelho aceso
-//   }
-//}
 
 // piscar LEDS por cor
 void piscarLed(char cor, bool &parar) {
@@ -142,7 +132,7 @@ void piscarLed(char cor, bool &parar) {
   if (led != NULL) { // led liga e desliga de 0.3 em 0.3
     while (!parar) {
       *led = 1; //*led acende o valor apontado, ou seja, o LED que foi escolhido
-                //com base no char cor.
+                // com base no char cor.
       wait(0.3); // LED ligado
       *led = 0;
       wait(0.3); // LED desligado

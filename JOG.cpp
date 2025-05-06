@@ -8,7 +8,7 @@
 
 float tempo = 0.001;
 float tempo_interpolado = 0.001 / 2.0; // tempo para os eixos X e Y
-float tempo_z = 0.001;                 // tempo para o eixo Z
+//float tempo_z = 0.001;                 // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
 BusOut MOTOR_Z(D10, D11, D12, A5);
@@ -28,6 +28,7 @@ AnalogIn joystickX(A1);
 AnalogIn joystickY(A0);
 extern DigitalIn botaoZmais; // Pressionado = HIGH (sem pull-down)
 extern DigitalIn botaoZmenos;
+extern DigitalIn seletor;
 
 // Criando parametros
 int Z_passo = 0;
@@ -59,8 +60,13 @@ void z(int direcao) // -1(subir) , +1(descer)
 
 // ACIONAR MOTOR EIXO X - DRIVER
 void x(int direcao, float velocidade) {
+// void x(int direcao)
   if (direcao == 0)
     return; // Sem movimento se direção = 0
+
+ // escolhe a velocidade pela chave
+    //float velocidade;
+   // chaveseletora(velocidade);
 
   // Define a direção (1 = horário, 0 = anti-horário)
   DIR_X = (direcao > 0) ? 1 : 0;
@@ -81,8 +87,12 @@ void x(int direcao, float velocidade) {
 
 // Função de acionamento do motor no eixo Y
 void y(int direcao, float velocidade) {
+    //void y(int direcao)
   if (direcao == 0)
     return; // Sem movimento se direção = 0
+
+    //float velocidade;
+    //chaveseletora(velocidade);
 
   // Define a direção (1 = horário, 0 = anti-horário)
   DIR_Y = (direcao > 0) ? 1 : 0;
