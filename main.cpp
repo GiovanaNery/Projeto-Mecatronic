@@ -12,6 +12,7 @@ extern DigitalOut ledVermelho;
 extern DigitalOut ledAmarelo;
 extern DigitalOut ledVerde;
 DigitalOut led(PA_5);
+DigitalOut startstop(PB_1);
 
 // 1) Instancia o barramento I2C em D14=SDA, D15=SCL
 I2C i2c_lcd(D14, D15);
@@ -30,6 +31,7 @@ void printLCD(const char *texto, int linha) {
 }
 
 int main() {
+  startstop = 0;
   // configuracão LCD
   lcd.setCursor(TextLCD::CurOff_BlkOff);
   lcd.setBacklight(TextLCD::LightOn);
@@ -42,7 +44,7 @@ int main() {
   botaoEmergencia.fall(&modoEmergencia);
 
   // configura encoder + botões
-  //setupEncoder();
+  // setupEncoder();
 
   // 1) perguntamos se quer iniciar o referenciamento
   printLCD("   Pressione para   ", 0);

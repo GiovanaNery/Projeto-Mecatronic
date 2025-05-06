@@ -65,6 +65,6 @@ void referenciar_EixoY() {
     y(-1 , tempo); // move até o fim negativo
   }
   passos_Y = 0;
-  printLCD("Fim do Refenciamento", 0);
+  printLCD("Fim do Refenciamento ", 0);
 }
 
