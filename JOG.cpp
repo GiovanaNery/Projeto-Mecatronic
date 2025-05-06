@@ -11,9 +11,9 @@ float tempo_interpolado = 0.001 / 2.0; // tempo para os eixos X e Y
 //float tempo_z = 0.001;                 // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
+DigitalOut Enable(D3); // Pino enable de liga e desliga
 BusOut MOTOR_Z(D10, D11, D12, D13);
 Serial pc(USBTX, USBRX, 9600);
-DigitalOut Enable(D3); // Pino enable de liga e desliga
 
 // Pinos conectados ao driver do motor no eixo X
 DigitalOut DIR_X(A3);  // Pino de direção (DIR)
@@ -56,6 +56,7 @@ void z(int direcao, float velocidade) // -1(subir) , +1(descer)
     passos_Z--;
     wait_us(int(velocidade * 1e6f));
   }
+  MOTOR_Z = 0;
 }
 
 // ACIONAR MOTOR EIXO X - DRIVER
@@ -180,6 +181,8 @@ extern DigitalIn endstopX_pos; // ativo em 0 quando bate no limite direito
 extern DigitalIn endstopY_pos; // ativo em 0 quando bate no limite traseiro
 extern DigitalIn endstopX_neg;
 extern DigitalIn endstopY_neg;
+extern DigitalIn endstopZ_neg;
+extern DigitalIn endstopZ_pos;
 
 struct Ponto3D {
   int x, y, z;
@@ -187,58 +190,58 @@ struct Ponto3D {
 float TEMPO_BASE = 0.005f; // intervalo base entre passos (s)
 float DEADZONE = 0.2f;
 
-float velocidade_jog = 0.02;
+// Modo de posicionamento manual 
+float velocidade_jog = 0.02f;
+
 // Modo de posicionamento manual
 void modoPosicionamentoManual() {
-  Enable = 0;         // habilita o driver
-  confirmado = false; // reseta o flag antes de entrar no loop
+    Enable = 0;
+    confirmado = false;
 
-  while (!confirmado) {
-    chaveseletora();
-    // 1) lê joystick (centra em zero)
-    float xVal = joystickX.read() - 0.5f;
-    float yVal = joystickY.read() - 0.5f;
+    // Configure os botões de Z (uma única vez, idealmente no main)
+    botaoZmais .mode(PullUp);
+    botaoZmenos.mode(PullUp);
 
-    // 2) define direção só se passar da deadzone
-    int dirX = (fabs(xVal) > DEADZONE) ? (xVal > 0 ? +1 : -1) : 0;
-    int dirY = (fabs(yVal) > DEADZONE) ? (yVal > 0 ? +1 : -1) : 0;
+    while (!confirmado) {
+        chaveseletora();
+        float xVal = joystickX.read() - 0.5f;
+        float yVal = joystickY.read() - 0.5f;
 
-    // 3) trava os limites em zero (sensor de fim curso negativo)
-    if (dirX < 0 && endstopX_neg.read() == 0)
-      dirX = 0;
-    if (dirY < 0 && endstopY_neg.read() == 0)
-      dirY = 0;
+        int dirX = (fabs(xVal) > DEADZONE) ? (xVal > 0 ? +1 : -1) : 0;
+        int dirY = (fabs(yVal) > DEADZONE) ? (yVal > 0 ? +1 : -1) : 0;
 
-    // 4) trava os limites no fim de curso positivo
-    if (dirX > 0 && endstopX_pos.read() == 0)
-      dirX = 0;
-    if (dirY > 0 && endstopY_pos.read() == 0)
-      dirY = 0;
+        // >>> Travamento dos limites X/Y (sensor ativo em LOW) <<<
+        if (dirX < 0 && endstopX_neg.read() == 0) dirX = 0;
+        if (dirX > 0 && endstopX_pos.read() == 0) dirX = 0;
+        if (dirY < 0 && endstopY_neg.read() == 0) dirY = 0;
+        if (dirY > 0 && endstopY_pos.read() == 0) dirY = 0;
 
-    // 5) calcula a “velocidade” a usar:
-    //    - se mexer nos dois eixos ao mesmo tempo, divide por 2
-    float vel = (dirX && dirY) ? (velocidade_jog / 2.0f) : velocidade_jog;
+        float vel = (dirX && dirY) ? (velocidade_jog / 2.0f) : velocidade_jog;
 
-    // 6) dispara os pulsos
-    if (dirX)
-      x(dirX, vel);
-    if (dirY)
-      y(dirY, vel);
+        // 1) Movimento X/Y
+        if (dirX) x(dirX, vel);
+        if (dirY) y(dirY, vel);
 
-    else if (botaoZmais == 1) {
-      z(1, velocidade_jog);
-    } else if (botaoZmenos == 1) {
-      z(-1, velocidade_jog);
+        // 2) Travamento e movimento do eixo Z (sensor ativo em LOW)
+        //    Só sobe se Z+ pressionado e sensor de base NÃO estiver acionado
+        if (botaoZmais.read() == 0 && endstopZ_pos.read() != 0) {
+            z(+1, velocidade_jog);
+        }
+        //    Só desce se Z- pressionado e sensor de topo NÃO estiver acionado
+        else if (botaoZmenos.read() == 0 && endstopZ_neg.read() != 0) {
+            z(-1, velocidade_jog);
+        }
     }
-  }
 
-  Enable = 1; // desabilita o driver
+    Enable = 1;
 
-  // exibe posição final no LCD
-  char buf[32];
-  sprintf(buf, "Final X:%d Y:%d", passos_X, passos_Y);
-  printLCD(buf, 0);
+    // Exibe posição final X/Y/Z
+    char buf[32];
+    sprintf(buf, "Final X:%d Y:%d Z:%d", passos_X, passos_Y, passos_Z);
+    printLCD(buf, 0);
 }
+
+
 
 void mover_Z(float posZ){
     while(passos_Z != posZ){

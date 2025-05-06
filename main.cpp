@@ -11,6 +11,8 @@
 extern DigitalOut ledVermelho;
 extern DigitalOut ledAmarelo;
 extern DigitalOut ledVerde;
+extern DigitalIn botaoZmais; // Pressionado = HIGH (sem pull-down)
+extern DigitalIn botaoZmenos;
 DigitalOut led(PA_5);
 DigitalOut startstop(PB_1);
 
@@ -53,6 +55,10 @@ int main() {
     // espera o encoder ser pressionado
   }
   wait_ms(300); // debounce
+
+  // 1) Configure os botões de Z para pull-up interno
+  botaoZmais.mode(PullUp); // quando solto = 1, pressionado = 0
+  botaoZmenos.mode(PullUp);
 
   // 2) homing dos eixos X e Y
   acenderLed('y'); // liga apenas o amarelo

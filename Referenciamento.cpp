@@ -8,8 +8,8 @@ DigitalIn endstopX_neg(PB_13); // X: lado esquerdo (zero)
 DigitalIn endstopX_pos(PB_15); // X: lado direito (máximo)
 DigitalIn endstopY_neg(D6); // Y: frente (zero)
 DigitalIn endstopY_pos(D7); // Y: trás (máximo)
-DigitalIn endstopZ_neg(PA_4); // Z: topo — define zero
-DigitalIn endstopZ_pos(PA_13); // Z: base — define limite inferior
+DigitalIn endstopZ_neg(PC_10); // Z: topo — define zero
+DigitalIn endstopZ_pos(PC_12); // Z: base — define limite inferior
 
 // Variáveis globais para armazenar o curso total
 int curso_total_x = 0;

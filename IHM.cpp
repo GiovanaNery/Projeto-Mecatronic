@@ -9,8 +9,8 @@ DigitalOut ledVerde(A5);
 // Pino fixo da chave seletora
 DigitalIn seletor(D5);
 // Pinos dos botões
-DigitalIn botaoZmais(PA_15);  // z no sentido positivo
-DigitalIn botaoZmenos(PA_14); // z no sentido negativo
+DigitalIn botaoZmais(PC_2);  // z no sentido positivo
+DigitalIn botaoZmenos(PC_3); // z no sentido negativo
 // Pinos do motor - drivers
 DigitalOut passoZ(D6);
 DigitalOut direcaoZ(D5);
@@ -94,7 +94,7 @@ void setupEncoder() {
 // chave seletora - para definir a velocidade que quero usar
 extern float velocidade_jog;
 void chaveseletora() {
-  if (seletor == 0) {
+  if (seletor == 1) {
       velocidade_jog = 0.01; //devagar
   } else {
       velocidade_jog = 0.001; // Rápido
