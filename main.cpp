@@ -51,20 +51,21 @@ int main() {
 
   // 2) Deslocamento para cada tubo usando moverInterpoladoXY fixo
   for (int i = 0; i < quantidadeTubos; ++i) {
-    int alvoX = tubos[i].pos.x;
-    int alvoY = tubos[i].pos.y;
     char buf[21];  // LCD 16x2: 16 chars + '\0'
     // Linha 0: número do tubo
     sprintf(buf, "Executando tubo %d", i + 1);
     printLCD(buf, 0);
-    printLCD("Ml: 0", 1);
+    printLCD("mL: 0", 1);
     for (int ml = 0 ; ml < tubos[i].volumeML; ++ml){
         moverInterpoladoXY(posBecker.x, posBecker.y);
         wait(0.5);
-        moverInterpoladoXY(alvoX, alvoY);
+        coleta_liberacao();
+        wait(0.5);
+        moverInterpoladoXY(tubos[i].pos.x, tubos[i].pos.y);
         wait(0.2);
         coleta_liberacao();
-        sprintf(buf, "Ml: %d", ml + 1);
+        wait(0.5);
+        sprintf(buf, "mL: %d", ml + 1);
         printLCD(buf, 1);
         wait(0.2);
     }
@@ -74,6 +75,6 @@ int main() {
   printLCD(" Processo concluido ", 0);
   printLCD("    com sucesso!    ", 1);
   buzzer = 1;
-  wait_ms(100); // 100 ms de buzzer ligado
+  wait(2); // 100 ms de buzzer ligado
   buzzer = 0;
 }

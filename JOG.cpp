@@ -2,6 +2,9 @@
 #include "Referenciamento.h"
 #include "mbed.h"
 #include "printLCD.h"
+#include <math.h>
+#define PI 3.14159265f
+#define T_BASE_MS 2.0f
 
 float tempo = 0.001;
 float tempo_interpolado = 0.001 / 2.0; // tempo para os eixos X e Y

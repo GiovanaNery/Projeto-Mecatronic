@@ -1,17 +1,15 @@
 #include "mbed.h"
 #include "Acionapipeta.h"
 
-int tempo_pega = 2;
-
 // Definindo os pinos 
-DigitalOut Acionar(PC_9);
+DigitalOut Acionar(PC_6);
 
 // função para acionar a pipeta
 void coleta_liberacao()
 {
     Acionar = 0; //botao apertado
-    wait(tempo_pega);
+    wait(1);
     Acionar = 1; 
-    wait_ms(2000);
+    wait(1);
     
 }
