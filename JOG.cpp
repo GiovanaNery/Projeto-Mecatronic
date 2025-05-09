@@ -5,10 +5,17 @@
 #include <math.h>
 #define PI 3.14159265f
 #define T_BASE_MS 2.0f
-
-float tempo = 0.001;
-float tempo_interpolado = 0.001 / 2.0; // tempo para os eixos X e Y
-//float tempo_z = 0.001;                 // tempo para o eixo Z
+#define INITIAL_FACTOR   16     // começa em 8 ms (8 000 µs)
+#define RAMP_DECR_US         1    // tira 0,2 ms (200 µs) a cada pulso
+#define PULSE_SETUP_US     2    // setup da direção
+#define PULSE_WIDTH_US     5    // largura mínima do STEP
+#define PULSE_GAP_US       10    // gap entre X e Y
+#define BASE_DELAY_US  55    // ~1 ms/16 ≈62 µs
+#define RAMP_PERCENT     10    // percentual de passos para ramp-up/down
+#define JITTER_US        3     // jitter máximo em µs para quebrar ressonância
+float tempo = (0.0006/16.0);
+float tempo_interpolado = (0.0006 / 32.0);
+//float tempo_z = 0.001;             61    // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
 DigitalOut Enable(D3); // Pino enable de liga e desliga
@@ -20,12 +27,12 @@ DigitalOut DIR_X(A3);  // Pino de direção (DIR)
 DigitalOut STEP_X(D4); // Pino de passo (STEP)
 
 // Pinos conectados ao driver do eixo Y
-DigitalOut DIR_Y(D8);  // Direção
+DigitalOut DIR_Y(PB_7);  // Direção
 DigitalOut STEP_Y(D9); // Passo
 
 // === ENTRADAS ===
 AnalogIn joystickX(A1);
-AnalogIn joystickY(A0);
+AnalogIn joystickY(PC_4);
 extern DigitalIn botaoZmais; // Pressionado = HIGH (sem pull-down)
 extern DigitalIn botaoZmenos;
 extern DigitalIn seletor;
@@ -33,84 +40,106 @@ extern DigitalIn seletor;
 // Criando parametros
 int Z_passo = 0;
 
-// ACIONAR MOTOR EIXO Z - MOSFET
-void z(int direcao, float velocidade) // -1(subir) , +1(descer)
-{
-  // subir
-  if (direcao < 0) {
-    MOTOR_Z = 1 << Z_passo;
-    Z_passo++;
-    if (Z_passo > 3) {
-      Z_passo = 0;
+
+// --- eixo X: recebe periodo_s em segundos ---
+// Função X com ramp-up automático e reset ao parar
+void x(int direcao, float periodo_s) {
+    static float delayX_us = 0.0f;
+    static bool  rampandoX = false;
+
+    // Se parar ou período inválido, zera estado de rampa e delay
+    if (direcao == 0 || periodo_s <= 0.0f) {
+        rampandoX = false;
+        delayX_us = 0.0f;
+        return;
     }
-    passos_Z++;
-    wait_us(int(velocidade * 1e6f));
-  }
-  // Descer
-  if (direcao > 0) {
-    MOTOR_Z = 1 << Z_passo;
-    Z_passo--;
-    if (Z_passo < 0) {
-      Z_passo = 3;
+
+    // Converte segundos → microsegundos
+    int alvo_us = int(periodo_s * 1e6f);
+
+    // Inicia arrancada com delay maior só na primeira chamada
+    if (!rampandoX) {
+        delayX_us  = alvo_us * INITIAL_FACTOR;
+        rampandoX = true;
     }
-    passos_Z--;
-    wait_us(int(velocidade * 1e6f));
-  }
-  MOTOR_Z = 0;
-}
 
-// ACIONAR MOTOR EIXO X - DRIVER
-void x(int direcao, float velocidade) {
-// void x(int direcao)
-  if (direcao == 0)
-    return; // Sem movimento se direção = 0
+    // Rampa de subida: decrementa até alcançar o alvo
+    if (delayX_us > alvo_us) {
+        delayX_us -= RAMP_DECR_US;
+        if (delayX_us < alvo_us) delayX_us = alvo_us;
+    }
 
- // escolhe a velocidade pela chave
-    //float velocidade;
-   // chaveseletora(velocidade);
-
-  // Define a direção (1 = horário, 0 = anti-horário)
-  DIR_X = (direcao > 0) ? 1 : 0;
-  // Tempo para o driver captar a direção
-  wait_us(100);
-
-  int totalPassos = abs(direcao);
-  // Executa todos os pulsos sem ficar re-habilitando o driver
-  for (int i = 0; i < totalPassos; i++) {
+    // Gera pulso no driver
+    DIR_X  = (direcao > 0);
+    wait_us(PULSE_SETUP_US);
     STEP_X = 1;
-    wait_us(100); // largura do pulso
+    wait_us(PULSE_WIDTH_US);
     STEP_X = 0;
-    wait_us(int(velocidade * 1e6f)); // intervalo entre pulsos
-    // Atualiza contador de passos
-    passos_X += (direcao > 0) ? +1 : -1;
-  }
+
+    // Aguarda conforme rampa e atualiza contador
+    wait_us(int(delayX_us));
+    passos_X += direcao;
 }
 
-// Função de acionamento do motor no eixo Y
-void y(int direcao, float velocidade) {
-    //void y(int direcao)
-  if (direcao == 0)
-    return; // Sem movimento se direção = 0
+// --------------------------------------------------
+// Função Y com ramp-up automático e reset ao parar
+void y(int direcao, float periodo_s) {
+    static float delayY_us = 0.0f;
+    static bool  rampandoY = false;
 
-    //float velocidade;
-    //chaveseletora(velocidade);
+    // Se parar ou período inválido, zera estado de rampa e delay
+    if (direcao == 0 || periodo_s <= 0.0f) {
+        rampandoY = false;
+        delayY_us = 0.0f;
+        return;
+    }
 
-  // Define a direção (1 = horário, 0 = anti-horário)
-  DIR_Y = (direcao > 0) ? 1 : 0;
-  // Tempo para o driver captar a direção
-  wait_us(100);
+    // Converte segundos → microsegundos
+    int alvo_us = int(periodo_s * 1e6f);
 
-  int totalPassos = abs(direcao);
-  // Executa todos os pulsos sem re-habilitar o driver
-  for (int i = 0; i < totalPassos; i++) {
+    // Inicia arrancada com delay maior só na primeira chamada
+    if (!rampandoY) {
+        delayY_us  = alvo_us * INITIAL_FACTOR;
+        rampandoY = true;
+    }
+
+    // Rampa de subida: decrementa até alcançar o alvo
+    if (delayY_us > alvo_us) {
+        delayY_us -= RAMP_DECR_US;
+        if (delayY_us < alvo_us) delayY_us = alvo_us;
+    }
+
+    // Gera pulso no driver
+    DIR_Y  = (direcao > 0);
+    wait_us(PULSE_SETUP_US);
     STEP_Y = 1;
-    wait_us(100); // largura do pulso
+    wait_us(PULSE_WIDTH_US);
     STEP_Y = 0;
-    wait_us(int(velocidade * 1e6f)); // intervalo entre pulsos
-    // Atualiza contador de passos
-    passos_Y += (direcao > 0) ? +1 : -1;
-  }
+
+    // Aguarda conforme rampa e atualiza contador
+    wait_us(int(delayY_us));
+    passos_Y += direcao;
 }
+//------------------------------------------------------------------------------
+// Função original de acionamento do eixo Z (mantida sem alterações)
+void z(int direcao, float velocidade) {
+    // Subir
+    if (direcao < 0) {
+        MOTOR_Z = 1 << Z_passo;
+        Z_passo = (Z_passo + 1) % 4;
+        passos_Z++;
+        wait_us(int(velocidade * 1e6f));
+    }
+    // Descer
+    else if (direcao > 0) {
+        MOTOR_Z = 1 << Z_passo;
+        Z_passo = (Z_passo - 1 + 4) % 4;
+        passos_Z--;
+        wait_us(int(velocidade * 1e6f));
+    }
+    MOTOR_Z = 0;
+}
+
 
 // desligar as bobinas
 void desliga_motor_x() {
@@ -134,46 +163,101 @@ void pararMotores() {
   MOTOR_Z = 0;
 }
 
-// === INTERPOLAÇÃO LINEAR ENTRE DOIS PONTOS (X E Y) ===
-// Função de interpolação XY usando os contadores atuais
-void moverInterpoladoXY(int xDestino, int yDestino) {
-  // captura posição inicial
-  int xInicio = passos_X;
-  int yInicio = passos_Y;
-  int deltaX = xDestino - xInicio;
-  int deltaY = yDestino - yInicio;
-  int passos = max(abs(deltaX), abs(deltaY));
 
-  for (int i = 1; i <= passos; i++) {
-    // calcula o ponto interpolado na reta (hipotenusa)
-    float t = float(i) / passos;
-    int xAlvo = int(xInicio + t * deltaX + 0.5f);
-    int yAlvo = int(yInicio + t * deltaY + 0.5f);
-
-    // quantos passos faltam em cada eixo
-    int dx = (xAlvo > passos_X) ? +1 : (xAlvo < passos_X) ? -1 : 0;
-    int dy = (yAlvo > passos_Y) ? +1 : (yAlvo < passos_Y) ? -1 : 0;
-
-    // seleciona delay; em diagonal, metade do tempo para cada eixo
-    float vel = (dx && dy) ? (tempo / 2.0f) : tempo;
-
-    // se for mover no X, habilita driver, dá o pulso e desabilita
-    if (dx) {
-      Enable = 0; // ativa driver
-      x(dx, vel); // um pulso em X
-      Enable = 1; // desativa driver
-    }
-    // se for mover no Y, mesmo esquema
-    if (dy) {
-      Enable = 0; // ativa driver
-      y(dy, vel); // um pulso em Y
-      Enable = 1; // desativa driver
-    }
-  }
-
-  // garante driver desligado ao final
-  Enable = 1;
+void xStep(int dir) {
+    if (dir == 0) return;
+    DIR_X = (dir > 0) ? 1 : 0;
+    wait_us(PULSE_SETUP_US);
+    STEP_X = 1;
+    wait_us(PULSE_WIDTH_US);
+    STEP_X = 0;
+    passos_X += (dir > 0) ? +1 : -1;
 }
+
+void yStep(int dir) {
+    if (dir == 0) return;
+    DIR_Y = (dir > 0) ? 1 : 0;
+    wait_us(PULSE_SETUP_US);
+    STEP_Y = 1;
+    wait_us(PULSE_WIDTH_US);
+    STEP_Y = 0;
+    passos_Y += (dir > 0) ? +1 : -1;
+}
+
+// Interpolação Bresenham com suavização de aceleração e jitter (Mbed 2)
+void moverInterpoladoXY(int xDestino, int yDestino) {
+    // inicializa jitter timer somente na primeira chamada
+    static Timer jitterTimer;
+    static bool jitterInit = false;
+    if (!jitterInit) {
+        jitterTimer.start();
+        srand(jitterTimer.read_us());
+        jitterInit = true;
+    }
+
+    // habilita driver (ativo-baixo)
+    Enable = 0;
+
+    int x0 = passos_X;
+    int y0 = passos_Y;
+    int dx = abs(xDestino - x0);
+    int dy = abs(yDestino - y0);
+    int sx = (x0 < xDestino) ? 1 : -1;
+    int sy = (y0 < yDestino) ? 1 : -1;
+    int err = dx - dy;
+
+    int totalSteps = (dx > dy) ? dx : dy;
+    int rampSteps  = totalSteps * RAMP_PERCENT / 100;
+    if (rampSteps < 1) rampSteps = 1;
+
+    for (int stepCount = 0; stepCount < totalSteps; ++stepCount) {
+        bool doX = false, doY = false;
+        int e2 = err * 2;
+        if (e2 > -dy) {
+            err -= dy;
+            x0 += sx;
+            doX = true;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y0 += sy;
+            doY = true;
+        }
+
+        // perfil trapezoidal de velocidade
+        int delayUs = BASE_DELAY_US;
+        if (stepCount < rampSteps) {
+            delayUs += (rampSteps - stepCount) * (BASE_DELAY_US / rampSteps);
+        } else if (stepCount > totalSteps - rampSteps) {
+            int idx = stepCount - (totalSteps - rampSteps);
+            delayUs += idx * (BASE_DELAY_US / rampSteps);
+        }
+        // aplica jitter
+        int jitter = (rand() % (2 * JITTER_US + 1)) - JITTER_US;
+        delayUs += jitter;
+        // garante mínimo de delay para não cortar pulso
+        int minDelay = PULSE_SETUP_US + PULSE_WIDTH_US + 1;
+        if (delayUs < minDelay) delayUs = minDelay;
+
+        // executa pulsos com espaçamento
+        if (doX && doY) {
+            xStep(sx);
+            wait_us(delayUs / 2);
+            yStep(sy);
+            wait_us(delayUs - delayUs / 2);
+        } else if (doX) {
+            xStep(sx);
+            wait_us(delayUs);
+        } else if (doY) {
+            yStep(sy);
+            wait_us(delayUs);
+        }
+    }
+
+    // desabilita driver
+    Enable = 1;
+}
+
 
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
 extern volatile bool confirmado;
@@ -187,7 +271,6 @@ extern DigitalIn endstopZ_pos;
 struct Ponto3D {
   int x, y, z;
 };
-float TEMPO_BASE = 0.005f; // intervalo base entre passos (s)
 float DEADZONE = 0.2f;
 
 // Modo de posicionamento manual 
@@ -219,10 +302,10 @@ void modoPosicionamentoManual() {
         float vel = (dirX && dirY) ? (velocidade_jog / 2.0f) : velocidade_jog;
 
         // 1) Movimento X/Y
-        if (dirX) x(dirX, vel);
-        if (dirY) y(dirY, vel);
+        x(dirX, vel);
+        y(dirY, vel);
 
-        // 2) Travamento e movimento do eixo Z (sensor ativo em LOW)
+        // 2) Travamento e movimento do eixo Z (sensor ativo em LOW)    
         //    Só sobe se Z+ pressionado e sensor de base NÃO estiver acionado
         if (botaoZmais.read() == 0 && endstopZ_pos.read() != 0) {
             z(+1, velocidade_jog);
@@ -234,11 +317,6 @@ void modoPosicionamentoManual() {
     }
 
     Enable = 1;
-
-    // Exibe posição final X/Y/Z
-    char buf[32];
-    sprintf(buf, "Final X:%d Y:%d Z:%d", passos_X, passos_Y, passos_Z);
-    printLCD(buf, 0);
 }
 
 

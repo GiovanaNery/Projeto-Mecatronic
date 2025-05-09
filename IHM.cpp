@@ -95,9 +95,9 @@ void setupEncoder() {
 extern float velocidade_jog;
 void chaveseletora() {
   if (seletor == 1) {
-      velocidade_jog = 0.01; //devagar
+      velocidade_jog = (0.006/16.0); //devagar
   } else {
-      velocidade_jog = 0.001; // Rápido
+      velocidade_jog = (0.0006/16.0); // Rápido
   }
 }
 
