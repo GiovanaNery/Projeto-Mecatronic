@@ -27,12 +27,12 @@ DigitalOut DIR_X(A3);  // Pino de direção (DIR)
 DigitalOut STEP_X(D4); // Pino de passo (STEP)
 
 // Pinos conectados ao driver do eixo Y
-DigitalOut DIR_Y(PB_7);  // Direção
+DigitalOut DIR_Y(D8);  // Direção
 DigitalOut STEP_Y(D9); // Passo
 
 // === ENTRADAS ===
-AnalogIn joystickX(A1);
-AnalogIn joystickY(PC_4);
+AnalogIn joystickX(A0);
+AnalogIn joystickY(A1);
 extern DigitalIn botaoZmais; // Pressionado = HIGH (sem pull-down)
 extern DigitalIn botaoZmenos;
 extern DigitalIn seletor;

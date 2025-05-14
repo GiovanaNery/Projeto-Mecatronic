@@ -42,8 +42,8 @@ int main() {
   setupEncoder();
 
   // configuracão botão de emergencia
-  botaoEmergencia.mode(PullDown);
-  botaoEmergencia.fall(&modoEmergencia);
+  //botaoEmergencia.mode(PullDown);
+  //botaoEmergencia.fall(&modoEmergencia);
 
   // 1) perguntamos se quer iniciar o referenciamento
   printLCD("   Pressione para   ", 0);
