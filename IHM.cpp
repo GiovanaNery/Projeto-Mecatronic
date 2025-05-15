@@ -7,7 +7,7 @@ DigitalOut ledVermelho(A2);
 DigitalOut ledAmarelo(A4);
 DigitalOut ledVerde(A5);
 // Pino fixo da chave seletora
-DigitalIn seletor(D5);
+DigitalIn seletor(PC_4);
 // Pinos dos botões
 //DigitalIn botaoZmais(PC_2);  // z no sentido positivo
 DigitalIn botaoZmenos(PC_3); // z no sentido negativo
