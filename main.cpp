@@ -56,10 +56,6 @@ int main() {
   }
   wait_ms(300); // debounce
 
-  // 1) Configure os botões de Z para pull-up interno
-  botaoZmais.mode(PullUp); // quando solto = 1, pressionado = 0
-  botaoZmenos.mode(PullUp);
-
   // 2) homing dos eixos X e Y
   acenderLed('y'); // liga apenas o amarelo
   Enable = 0;

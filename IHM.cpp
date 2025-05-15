@@ -9,7 +9,7 @@ DigitalOut ledVerde(A5);
 // Pino fixo da chave seletora
 DigitalIn seletor(D5);
 // Pinos dos botões
-DigitalIn botaoZmais(PC_2);  // z no sentido positivo
+//DigitalIn botaoZmais(PC_2);  // z no sentido positivo
 DigitalIn botaoZmenos(PC_3); // z no sentido negativo
 // Pinos do motor - drivers
 DigitalOut passoZ(D6);

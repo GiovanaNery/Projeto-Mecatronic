@@ -28,7 +28,7 @@ void referenciar_EixoZ() {
 
   // 1. Sobe até o topo (posição zero)
   while (endstopZ_neg.read() == 1) {
-    z(-1,tempo);
+    z(-1);
   }
   passos_Z = 0;
   printLCD("Fim do Refenciamento", 0);

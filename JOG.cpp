@@ -14,6 +14,7 @@
 #define RAMP_PERCENT     10    // percentual de passos para ramp-up/down
 #define JITTER_US        3     // jitter máximo em µs para quebrar ressonância
 float tempo = (0.0006/16.0);
+float tempo_z = 0.002;
 float tempo_interpolado = (0.0006 / 32.0);
 //float tempo_z = 0.001;             61    // tempo para o eixo Z
 
@@ -122,20 +123,20 @@ void y(int direcao, float periodo_s) {
 }
 //------------------------------------------------------------------------------
 // Função original de acionamento do eixo Z (mantida sem alterações)
-void z(int direcao, float velocidade) {
+void z(int direcao) {
     // Subir
     if (direcao < 0) {
         MOTOR_Z = 1 << Z_passo;
         Z_passo = (Z_passo + 1) % 4;
         passos_Z++;
-        wait_us(int(velocidade * 1e6f));
+        wait_us(int(tempo_z * 1e6f));
     }
     // Descer
     else if (direcao > 0) {
         MOTOR_Z = 1 << Z_passo;
         Z_passo = (Z_passo - 1 + 4) % 4;
         passos_Z--;
-        wait_us(int(velocidade * 1e6f));
+        wait_us(int(tempo_z * 1e6f));
     }
     MOTOR_Z = 0;
 }
@@ -282,8 +283,8 @@ void modoPosicionamentoManual() {
     confirmado = false;
 
     // Configure os botões de Z (uma única vez, idealmente no main)
-    botaoZmais .mode(PullUp);
-    botaoZmenos.mode(PullUp);
+    //botaoZmais .mode(PullUp);
+    //botaoZmenos.mode(PullUp);
 
     while (!confirmado) {
         chaveseletora();
@@ -307,12 +308,12 @@ void modoPosicionamentoManual() {
 
         // 2) Travamento e movimento do eixo Z (sensor ativo em LOW)    
         //    Só sobe se Z+ pressionado e sensor de base NÃO estiver acionado
-        if (botaoZmais.read() == 0 && endstopZ_pos.read() != 0) {
-            z(+1, velocidade_jog);
-        }
+        //if (botaoZmais.read() == 0 && endstopZ_pos.read() != 0) {
+            //z(-1);
+        //}
         //    Só desce se Z- pressionado e sensor de topo NÃO estiver acionado
-        else if (botaoZmenos.read() == 0 && endstopZ_neg.read() != 0) {
-            z(-1, velocidade_jog);
+        if (botaoZmenos.read() == 0 && endstopZ_neg.read() != 0) {
+            z(+1);
         }
     }
 
@@ -324,10 +325,10 @@ void modoPosicionamentoManual() {
 void mover_Z(float posZ){
     while(passos_Z != posZ){
         if (passos_Z >= posZ) {
-            z(-1,tempo);
+            z(-1);
         }
         if (passos_Z <= posZ) {
-            z(1,tempo);
+            z(1);
         }
 
     }
