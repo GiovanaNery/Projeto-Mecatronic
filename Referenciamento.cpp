@@ -8,8 +8,8 @@ DigitalIn endstopX_neg(PB_13); // X: lado esquerdo (zero)
 DigitalIn endstopX_pos(PB_15); // X: lado direito (máximo)
 DigitalIn endstopY_neg(D6); // Y: frente (zero)
 DigitalIn endstopY_pos(D7); // Y: trás (máximo)
-DigitalIn endstopZ_neg(PC_10); // Z: topo — define zero
-DigitalIn endstopZ_pos(PC_12); // Z: base — define limite inferior
+DigitalIn endstopZ_neg(PC_12); // Z: topo — define zero
+DigitalIn endstopZ_pos(PC_10); // Z: base — define limite inferior
 
 // Variáveis globais para armazenar o curso total
 int curso_total_x = 0;
@@ -21,13 +21,13 @@ int passos_Z = 0;
 
 // Referenciamento do EIXO Z
 void referenciar_EixoZ() {
-  endstopZ_neg.mode(PullUp);
+  endstopZ_pos.mode(PullUp);
   printLCD("   Referenciamento   ", 0);
   printLCD("         do         ", 1);
   printLCD("       Eixo Z       ", 2);
 
   // 1. Sobe até o topo (posição zero)
-  while (endstopZ_neg.read() == 1) {
+  while (endstopZ_pos.read() == 1) {
     z(-1);
   }
   passos_Z = 0;

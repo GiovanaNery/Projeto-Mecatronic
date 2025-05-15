@@ -308,9 +308,9 @@ void modoPosicionamentoManual() {
 
         // 2) Travamento e movimento do eixo Z (sensor ativo em LOW)    
         //    Só sobe se Z+ pressionado e sensor de base NÃO estiver acionado
-        //if (botaoZmais.read() == 0 && endstopZ_pos.read() != 0) {
-            //z(-1);
-        //}
+        if (botaoZmais.read() == 0 && endstopZ_pos.read() != 0) {
+            z(-1);
+        }
         //    Só desce se Z- pressionado e sensor de topo NÃO estiver acionado
         if (botaoZmenos.read() == 0 && endstopZ_neg.read() != 0) {
             z(+1);
