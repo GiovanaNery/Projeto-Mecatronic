@@ -281,10 +281,7 @@ float velocidade_jog = 0.02f;
 void modoPosicionamentoManual() {
     Enable = 0;
     confirmado = false;
-
-    // Configure os botões de Z (uma única vez, idealmente no main)
-    //botaoZmais .mode(PullUp);
-    //botaoZmenos.mode(PullUp);
+    static int lastDirX = 0, lastDirY = 0;
 
     while (!confirmado) {
         chaveseletora();
@@ -301,6 +298,18 @@ void modoPosicionamentoManual() {
         if (dirY > 0 && endstopY_pos.read() == 0) dirY = 0;
 
         float vel = (dirX && dirY) ? (velocidade_jog / 2.0f) : velocidade_jog;
+
+        // 4) detecta inversão de sinal e reseta a rampa
+        if (dirX * lastDirX < 0) {
+            x(0, vel);           // zera a rampa de X
+            y(0, vel);          // zera a rampa de Y
+        }
+        if (dirY * lastDirY < 0) {
+            y(0, vel);          // zera a rampa de Y
+            x(0, vel);           // zera a rampa de X
+        }
+        lastDirX = dirX;
+        lastDirY = dirY;
 
         // 1) Movimento X/Y
         x(dirX, vel);
