@@ -42,9 +42,14 @@ int main() {
   setupEncoder();
 
   // configuracão botão de emergencia
-  //botaoEmergencia.mode(PullDown);
-  //botaoEmergencia.fall(&modoEmergencia);
+  // botaoEmergencia.mode(PullDown);
+  // botaoEmergencia.fall(&modoEmergencia);
 
+  // Mostra o nome do sistema por 0.5s
+  printLCD("     PIPETRONIX     ", 0);
+  printLCD("                    ", 1);
+  printLCD("                    ", 2);
+  wait(2); // Espera 0.5 segundos
   // 1) perguntamos se quer iniciar o referenciamento
   printLCD("   Pressione para   ", 0);
   printLCD("     iniciar o      ", 1);
@@ -93,7 +98,7 @@ int main() {
       mover_Z(posBecker.z); // move o Z
       wait(0.1);
       coleta_liberacao(); // coletando do becker
-      wait(0.1);
+      wait(2);
       mover_Z(0); // zera o Z
       wait(0.1);
       moverInterpoladoXY(tubos[i].pos.x, tubos[i].pos.y);
@@ -101,7 +106,7 @@ int main() {
       mover_Z(tubos[i].pos.z);
       wait(0.1);
       coleta_liberacao(); // dispensando
-      wait(0.1);
+      wait(2);
       mover_Z(0); // zera o Z
       sprintf(buf, "mL: %d", ml + 1);
       printLCD(buf, 1);
