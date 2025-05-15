@@ -128,14 +128,14 @@ void z(int direcao) {
     if (direcao < 0) {
         MOTOR_Z = 1 << Z_passo;
         Z_passo = (Z_passo + 1) % 4;
-        passos_Z++;
+        passos_Z--;
         wait_us(int(tempo_z * 1e6f));
     }
     // Descer
     else if (direcao > 0) {
         MOTOR_Z = 1 << Z_passo;
         Z_passo = (Z_passo - 1 + 4) % 4;
-        passos_Z--;
+        passos_Z++;
         wait_us(int(tempo_z * 1e6f));
     }
     MOTOR_Z = 0;
@@ -308,9 +308,9 @@ void modoPosicionamentoManual() {
 
         // 2) Travamento e movimento do eixo Z (sensor ativo em LOW)    
         //    Só sobe se Z+ pressionado e sensor de base NÃO estiver acionado
-        //if (botaoZmais.read() == 0 && endstopZ_pos.read() != 0) {
-            //z(-1);
-        //}
+        if (botaoZmais.read() == 0 && endstopZ_pos.read() != 0) {
+            z(-1);
+        }
         //    Só desce se Z- pressionado e sensor de topo NÃO estiver acionado
         if (botaoZmenos.read() == 0 && endstopZ_neg.read() != 0) {
             z(+1);
@@ -324,10 +324,10 @@ void modoPosicionamentoManual() {
 
 void mover_Z(float posZ){
     while(passos_Z != posZ){
-        if (passos_Z >= posZ) {
+        if (passos_Z >= posZ && endstopZ_pos.read() != 0 ) {
             z(-1);
         }
-        if (passos_Z <= posZ) {
+        else if (passos_Z <= posZ && endstopZ_neg.read() != 0) {
             z(1);
         }
 
