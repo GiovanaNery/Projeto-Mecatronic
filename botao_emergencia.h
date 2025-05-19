@@ -4,7 +4,7 @@
 #include "mbed.h"
 
 // Declaração dos pinos e variáveis globais relacionados à emergência
-extern InterruptIn botaoEmergencia;
+extern DigitalIn botaoEmergencia;
 extern DigitalOut buzzer;
 extern bool confirmado;
 extern bool emergenciaAtiva;
@@ -13,5 +13,6 @@ extern bool pararPiscar;
 // Funções
 void modoEmergencia();
 void iniciarPiscarLedVermelho();
+void desacionar();
 
 #endif
