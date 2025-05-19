@@ -37,10 +37,10 @@ AnalogIn joystickY(A1);
 extern DigitalIn botaoZmais; // Pressionado = HIGH (sem pull-down)
 extern DigitalIn botaoZmenos;
 extern DigitalIn seletor;
+extern DigitalIn botaoEmergencia;
 
 // Criando parametros
 int Z_passo = 0;
-
 
 // --- eixo X: recebe periodo_s em segundos ---
 // Função X com ramp-up automático e reset ao parar
@@ -232,6 +232,9 @@ void moverInterpoladoXY(int xDestino, int yDestino) {
     if (rampSteps < 1) rampSteps = 1;
 
     for (int stepCount = 0; stepCount < totalSteps; ++stepCount) {
+        if (botaoEmergencia.read() == 1) {
+        break; // Interrompe o laço imediatamente
+      }
         bool doX = false, doY = false;
         int e2 = err * 2;
         if (e2 > -dy) {
@@ -303,7 +306,7 @@ void modoPosicionamentoManual() {
     confirmado = false;
     static int lastDirX = 0, lastDirY = 0;
 
-    while (!confirmado) {
+    while (!confirmado && botaoEmergencia==0) {
         chaveseletora();
         float xVal = joystickX.read() - 0.5f;
         float yVal = joystickY.read() - 0.5f;
@@ -345,20 +348,16 @@ void modoPosicionamentoManual() {
             z(+1);
         }
     }
-
     Enable = 1;
 }
 
-
-
 void mover_Z(float posZ){
-    while(passos_Z != posZ){
+    while(passos_Z != posZ && botaoEmergencia==0){
         if (passos_Z >= posZ && endstopZ_pos.read() != 0 ) {
             z(-1);
         }
         else if (passos_Z <= posZ && endstopZ_neg.read() != 0) {
             z(1);
         }
-
     }
 }

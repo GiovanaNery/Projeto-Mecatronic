@@ -22,7 +22,6 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial, int minValor
 void printLCD(const char* texto, int linha);
 void chaveseletora();
 void acenderLed(char cor); 
-void piscarLed(char cor, bool& parar);
 void controlarEixoZ();
 void verificarPressionamentoLongo();
 #endif

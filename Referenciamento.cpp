@@ -10,6 +10,7 @@ DigitalIn endstopY_neg(D6);    // Y: frente (zero)
 DigitalIn endstopY_pos(D7);    // Y: trás (máximo)
 DigitalIn endstopZ_neg(PC_12); // Z: topo — define zero
 DigitalIn endstopZ_pos(PC_10); // Z: base — define limite inferior
+extern DigitalIn botaoEmergencia;
 
 // Variáveis globais para armazenar o curso total
 int curso_total_x = 0;
@@ -22,30 +23,36 @@ bool reset;
 // Referenciamento do EIXO Z
 void referenciar_EixoZ() {
   endstopZ_pos.mode(PullUp);
-  printLCD("   Referenciamento   ", 0);
-  printLCD("         do         ", 1);
-  printLCD("       Eixo Z       ", 2);
+
+  if (botaoEmergencia == 0) {
+    printLCD("   Referenciamento   ", 0);
+    printLCD("         do         ", 1);
+    printLCD("       Eixo Z       ", 2);
+  }
 
   // 1. Sobe até o topo (posição zero)
-  while (endstopZ_pos.read() == 1) {
+  while (endstopZ_pos.read() == 1 && botaoEmergencia == 0) {
     z(-1);
   }
   passos_Z = 0;
-  printLCD("Fim do Refenciamento", 0);
+  if (botaoEmergencia == 0) {
+    printLCD("Fim do Referenciamento", 0);
+  }
 }
 
 // Referenciando o EIXO X
 void referenciar_EixoXY() {
-
-  printLCD("   Referenciamento   ", 0);
-  printLCD("         dos         ", 1);
-  printLCD("       Eixos X e Y       ", 2);
-  x(0, tempo_interpolado); // reseta as rampas
-  y(0, tempo_interpolado);
-  reset = true;
-
+  if (botaoEmergencia == 0) {
+    printLCD("   Referenciamento   ", 0);
+    printLCD("         dos         ", 1);
+    printLCD("   Eixos X e Y    ", 2);
+    x(0, tempo_interpolado); // reseta as rampas
+    y(0, tempo_interpolado);
+    reset = true;
+  }
   // 1. Vai até o lado negativo
-  while (endstopX_neg.read() == 1 || endstopY_neg.read() == 1) {
+  while ((endstopX_neg.read() == 1 && botaoEmergencia == 0) ||
+         (endstopY_neg.read() == 1 && botaoEmergencia == 0)) {
     bool moverX = (endstopX_neg.read() == 1);
     bool moverY = (endstopY_neg.read() == 1);
 
@@ -67,27 +74,16 @@ void referenciar_EixoXY() {
       }
     }
   }
-  passos_X = 100000; //passos criados apenas para permitir o movimento até o fim de curso virtual
-  passos_Y = 100000;
-  wait(0.5);
-  moverInterpoladoXY(112000, 112000); // move para o fim de curso virtual + uma folga
-  passos_X = 12000; //define o ponto real que está
-  passos_Y = 12000;
+  if (botaoEmergencia == 0) {
+    passos_X = 100000; // passos criados apenas para permitir o movimento até o
+                       // fim de curso virtual
+    passos_Y = 100000;
+    wait(0.5);
+    moverInterpoladoXY(112000,
+                       112000); // move para o fim de curso virtual + uma folga
+    passos_X = 12000;           // define o ponto real que está
+    passos_Y = 12000;
 
-  printLCD("Fim do Refenciamento", 0);
-}
-
-// Referenciamento do EIXO Y
-void referenciar_EixoY() {
-
-  printLCD("   Referenciamento   ", 0);
-  printLCD("         do         ", 1);
-  printLCD("       Eixo Y       ", 2);
-
-  // 1. Vai até o lado negativo
-  while (endstopY_neg.read() == 1) {
-    y(-1, tempo); // move até o fim negativo
+    printLCD("Fim do Refenciamento", 0);
   }
-  passos_Y = 0;
-  printLCD("Fim do Refenciamento ", 0);
 }

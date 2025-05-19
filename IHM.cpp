@@ -18,6 +18,7 @@ DigitalOut direcaoZ(D5);
 InterruptIn encoderCLK(PB_12);   // sinal A
 DigitalIn encoderDT(PB_11);      // sinal B
 InterruptIn encoderBotao(PA_11); // botão (leitura manual)
+extern DigitalIn botaoEmergencia;
 
 // === VARIÁVEIS ===
 volatile int encoderValor = 1;
@@ -58,7 +59,7 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
 
   printLCD(mensagem, 0); // mensagem na linha 0
 
-  while (!confirmado) {
+  while (!confirmado && botaoEmergencia==0) {
     // limita entre minValor e maxValor
     if (encoderValor < minValor)
       encoderValor = minValor;
@@ -113,7 +114,7 @@ void verificarPressionamentoLongo() {
 extern float velocidade_jog;
 void chaveseletora() {
   if (seletor == 1) {
-      velocidade_jog = (0.002/16.0); //devagar
+      velocidade_jog = (0.001/16.0); //devagar
   } else {
       velocidade_jog = (0.0004/16.0); // Rápido
   }
@@ -136,32 +137,3 @@ void acenderLed(
     ledAmarelo = 1;
   }
 }
-
-// piscar LEDS por cor
-void piscarLed(char cor, bool &parar) {
-  DigitalOut *led = NULL;
-
-  if (cor == 'r')
-    led = &ledVermelho;
-  else if (cor == 'g')
-    led = &ledVerde;
-  else if (cor == 'y')
-    led = &ledAmarelo;
-
-  if (led != NULL) { // led liga e desliga de 0.3 em 0.3
-    while (!parar) {
-      *led = 1; //*led acende o valor apontado, ou seja, o LED que foi escolhido
-                // com base no char cor.
-      wait(0.3); // LED ligado
-      *led = 0;
-      wait(0.3); // LED desligado
-    }
-    *led = 0; // Garante que o LED fique apagado no final
-  }
-}
-// COMO USAR A FUNCAO:
-// pararPiscar = false;
-// piscarLed('r', pararPiscar); // Enquanto pisca led vermelho, outra lógica
-// pode rodar em paralelo
-//  Quando quiser parar:
-// pararPiscar = true;
