@@ -55,6 +55,12 @@ void x(int direcao, float periodo_s) {
         return;
     }
 
+    // === LIMITE DIGITAL DE PASSOS ===
+    if ((direcao > 0 && passos_X >= 381759) ||
+        (direcao < 0 && passos_X <= 10000)) {
+        return; // bloqueia movimento
+    }
+
     // Converte segundos → microsegundos
     int alvo_us = int(periodo_s * 1e6f);
 
@@ -93,6 +99,12 @@ void y(int direcao, float periodo_s) {
         rampandoY = false;
         delayY_us = 0.0f;
         return;
+    }
+
+    // === LIMITE DIGITAL DE PASSOS ===
+    if ((direcao > 0 && passos_Y >= 453582) ||
+        (direcao < 0 && passos_Y <= 10000)) {
+        return; // bloqueia movimento
     }
 
     // Converte segundos → microsegundos
@@ -166,6 +178,10 @@ void pararMotores() {
 
 
 void xStep(int dir) {
+    // === LIMITE DIGITAL DE PASSOS ===
+    if (passos_X >= 381759 || passos_X <= 10000) {
+        return; // bloqueia movimento
+    }
     if (dir == 0) return;
     DIR_X = (dir > 0) ? 1 : 0;
     wait_us(PULSE_SETUP_US);
@@ -176,6 +192,10 @@ void xStep(int dir) {
 }
 
 void yStep(int dir) {
+    // === LIMITE DIGITAL DE PASSOS ===
+    if ( passos_Y >= 453582 || passos_Y <= 10000) {
+        return; // bloqueia movimento
+    }
     if (dir == 0) return;
     DIR_Y = (dir > 0) ? 1 : 0;
     wait_us(PULSE_SETUP_US);

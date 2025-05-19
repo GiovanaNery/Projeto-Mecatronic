@@ -26,18 +26,18 @@ volatile bool confirmado = false;
 int valorAnterior = encoderValor;
 bool ultimoEstadoBotao = 1; // botão não pressionado
 
-// === Função de leitura de giro ===
 void encoderGiro() {
-  if (encoderCLK.read() == encoderDT.read()) {
+  // agora, se CLK ≠ DT (sentido horário) a gente incrementa
+  if (encoderCLK.read() != encoderDT.read()) {
     contadorCliques++;
   } else {
     contadorCliques--;
   }
 
-  if (contadorCliques >= 5) {
+  if (contadorCliques >= 2) {
     encoderValor++;
     contadorCliques = 0;
-  } else if (contadorCliques <= -5) {
+  } else if (contadorCliques <= -2) {
     encoderValor--;
     contadorCliques = 0;
   }
@@ -89,6 +89,24 @@ void setupEncoder() {
   encoderBotao.mode(PullUp);
   encoderCLK.fall(&encoderGiro);   // gira
   encoderBotao.fall(&aoConfirmar); // botão confirma
+}
+bool confirmado_5seg = false;
+
+void verificarPressionamentoLongo() {
+  const int tempoPressionado_ms = 5000;  // 5 segundos
+  int tempoPressionado = 0;
+
+  if (encoderBotao.read() == 0) {  // Botão pressionado (LOW, assumindo PullUp)
+    while (encoderBotao.read() == 0) {
+      wait_ms(10);
+      tempoPressionado += 10;
+
+      if (tempoPressionado >= tempoPressionado_ms) {
+        confirmado_5seg = true;
+        break;
+      }
+    }
+  }
 }
 
 // chave seletora - para definir a velocidade que quero usar

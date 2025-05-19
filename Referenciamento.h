@@ -7,7 +7,7 @@
 
 // declaração de funções e variaveis
 void referenciar_EixoZ();
-void referenciar_EixoX();
+void referenciar_EixoXY();
 void referenciar_EixoY();
 
 extern int passos_X;
