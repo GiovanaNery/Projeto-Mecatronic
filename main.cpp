@@ -71,7 +71,7 @@ int main() {
       acenderLed('g'); // liga apenas o verde
     }
     if (botaoEmergencia == 0) {
-      wait(2.0); // mantém o verde por 3 segundos
+      wait(2.0); // mantém o verde por 3 segundos 
       // Desliga todos os LEDs e continua o programa
       ledVermelho = ledVerde = ledAmarelo = 0;
     }

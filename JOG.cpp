@@ -9,13 +9,9 @@
 #define RAMP_DECR_US         1    // tira 0,2 ms (200 µs) a cada pulso
 #define PULSE_SETUP_US     2    // setup da direção
 #define PULSE_WIDTH_US     5    // largura mínima do STEP
-#define PULSE_GAP_US       10    // gap entre X e Y
-#define BASE_DELAY_US  55    // ~1 ms/16 ≈62 µs
-#define RAMP_PERCENT     10    // percentual de passos para ramp-up/down
-#define JITTER_US        3     // jitter máximo em µs para quebrar ressonância
 float tempo = (0.0006/16.0);
 float tempo_z = 0.002;
-float tempo_interpolado = (0.0006 / 32.0);
+float tempo_interpolado = (0.0006/ 32.0);
 //float tempo_z = 0.001;             61    // tempo para o eixo Z
 
 // Definindo os pinos do motor de passo de cada eixo (X, Y e Z)
@@ -137,18 +133,18 @@ void y(int direcao, float periodo_s) {
 // Função original de acionamento do eixo Z (mantida sem alterações)
 void z(int direcao) {
     // Subir
-    if (direcao < 0) {
+    if (direcao < 0 && passos_Z > 100) {
         MOTOR_Z = 1 << Z_passo;
         Z_passo = (Z_passo + 1) % 4;
         passos_Z--;
-        wait_us(int(tempo_z * 1e6f));
+        wait_us((0.0025 * 1e6f));
     }
     // Descer
     else if (direcao > 0) {
         MOTOR_Z = 1 << Z_passo;
         Z_passo = (Z_passo - 1 + 4) % 4;
         passos_Z++;
-        wait_us(int(tempo_z * 1e6f));
+        wait_us((0.0025 * 1e6f));
     }
     MOTOR_Z = 0;
 }
@@ -205,6 +201,10 @@ void yStep(int dir) {
     passos_Y += (dir > 0) ? +1 : -1;
 }
 
+#define PULSE_GAP_US       10    // gap entre X e Y
+#define BASE_DELAY_US  55    // ~1 ms/16 ≈62 µs
+#define RAMP_PERCENT     10    // percentual de passos para ramp-up/down
+#define JITTER_US        3     // jitter máximo em µs para quebrar ressonância
 // Interpolação Bresenham com suavização de aceleração e jitter (Mbed 2)
 void moverInterpoladoXY(int xDestino, int yDestino) {
     // inicializa jitter timer somente na primeira chamada
@@ -232,9 +232,6 @@ void moverInterpoladoXY(int xDestino, int yDestino) {
     if (rampSteps < 1) rampSteps = 1;
 
     for (int stepCount = 0; stepCount < totalSteps; ++stepCount) {
-        if (botaoEmergencia.read() == 1) {
-        break; // Interrompe o laço imediatamente
-      }
         bool doX = false, doY = false;
         int e2 = err * 2;
         if (e2 > -dy) {
@@ -283,6 +280,10 @@ void moverInterpoladoXY(int xDestino, int yDestino) {
 }
 
 
+
+
+
+
 // === POSICIONAMENTO MANUAL COM INTERPOLAÇÃO E JOYSTICK ===
 extern volatile bool confirmado;
 extern DigitalIn endstopX_pos; // ativo em 0 quando bate no limite direito
@@ -295,7 +296,7 @@ extern DigitalIn endstopZ_pos;
 struct Ponto3D {
   int x, y, z;
 };
-float DEADZONE = 0.2f;
+float DEADZONE = 0.1f;
 
 // Modo de posicionamento manual 
 float velocidade_jog = 0.02f;
@@ -311,8 +312,8 @@ void modoPosicionamentoManual() {
         float xVal = joystickX.read() - 0.5f;
         float yVal = joystickY.read() - 0.5f;
 
-        int dirX = (fabs(xVal) > DEADZONE) ? (xVal > 0 ? +1 : -1) : 0;
-        int dirY = (fabs(yVal) > DEADZONE) ? (yVal > 0 ? +1 : -1) : 0;
+        int dirX = (fabs(xVal) > DEADZONE) ? (xVal > 0 ? -1 : +1) : 0;
+        int dirY = (fabs(yVal) > DEADZONE) ? (yVal > 0 ? -1 : +1) : 0;
 
         // >>> Travamento dos limites X/Y (sensor ativo em LOW) <<<
         if (dirX < 0 && endstopX_neg.read() == 0) dirX = 0;
@@ -352,7 +353,10 @@ void modoPosicionamentoManual() {
 }
 
 void mover_Z(float posZ){
-    while(passos_Z != posZ && botaoEmergencia==0){
+    if (posZ == 0) {
+        posZ = 110;
+    }
+        while(passos_Z != posZ && botaoEmergencia==0){
         if (passos_Z >= posZ && endstopZ_pos.read() != 0 ) {
             z(-1);
         }

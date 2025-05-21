@@ -50,17 +50,15 @@ void aoConfirmar() { confirmado = true; }
 // === Função principal de seleção com LCD ===
 int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
                             int minValor, int maxValor, int ind) {
-  // ind = 0 → seleciona volume (exibe “Volume: X mL”)
-  // ind = 1 → apenas exibe o número
-  encoderValor = valorInicial;
+  encoderValor = valorInicial; // começa com 1
   contadorCliques = 0;
   confirmado = false;
-  int valorAnterior = encoderValor;
+  int valorAnterior = -1; // força print inicial mesmo se começar em 1
 
   printLCD(mensagem, 0); // mensagem na linha 0
 
-  while (!confirmado && botaoEmergencia==0) {
-    // limita entre minValor e maxValor
+  while (!confirmado && botaoEmergencia == 0) {
+    // aplica os limites
     if (encoderValor < minValor)
       encoderValor = minValor;
     else if (encoderValor > maxValor)
@@ -69,15 +67,15 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
     if (encoderValor != valorAnterior) {
       char buffer[20];
       if (ind == 0) {
-        sprintf(buffer, "Volume: %d mL", encoderValor);
+        sprintf(buffer, "Volume: %d mL ", encoderValor);
       } else {
         sprintf(buffer, "%d", encoderValor);
       }
-      printLCD(buffer, 1); // valor na linha 1
+      printLCD(buffer, 1); // exibe o valor
       valorAnterior = encoderValor;
     }
 
-    wait_ms(10); // debounce suave
+    wait_ms(10); // debounce
   }
 
   confirmado = false;

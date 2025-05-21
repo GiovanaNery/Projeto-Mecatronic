@@ -18,7 +18,7 @@ int curso_total_y = 0;
 int curso_total_z = 0;
 int passos_X = 1000000;
 int passos_Y = 1000000;
-int passos_Z = 0;
+int passos_Z = 1000000;
 bool reset;
 // Referenciamento do EIXO Z
 void referenciar_EixoZ() {
@@ -34,7 +34,9 @@ void referenciar_EixoZ() {
   while (endstopZ_pos.read() == 1 && botaoEmergencia == 0) {
     z(-1);
   }
-  passos_Z = 0;
+  passos_Z = 10000;
+  mover_Z(10150);
+  passos_Z = 150;
   if (botaoEmergencia == 0) {
     printLCD("Fim do Referenciamento", 0);
   }
