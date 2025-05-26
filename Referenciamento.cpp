@@ -34,8 +34,8 @@ void referenciar_EixoZ() {
   while (endstopZ_pos.read() == 1 && botaoEmergencia == 0) {
     z(-1);
   }
-  passos_Z = 10000;
-  mover_Z(10150);
+  passos_Z = 3000;
+  mover_Z(3150);
   passos_Z = 150;
   if (botaoEmergencia == 0) {
     printLCD("Fim do Referenciamento", 0);
@@ -47,7 +47,7 @@ void referenciar_EixoXY() {
   if (botaoEmergencia == 0) {
     printLCD("   Referenciamento   ", 0);
     printLCD("         dos         ", 1);
-    printLCD("   Eixos X e Y    ", 2);
+    printLCD("     Eixos X e Y     ", 2);
     x(0, tempo_interpolado); // reseta as rampas
     y(0, tempo_interpolado);
     reset = true;

@@ -69,7 +69,7 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
       if (ind == 0) {
         sprintf(buffer, "Volume: %d mL ", encoderValor);
       } else {
-        sprintf(buffer, "%d", encoderValor);
+        sprintf(buffer, "%d ", encoderValor);
       }
       printLCD(buffer, 1); // exibe o valor
       valorAnterior = encoderValor;

@@ -46,7 +46,7 @@ void configurarSistema() {
     sprintf(buf, "    >> Tubo %d <<", i + 1);
     printLCD(buf, 0);
     printLCD("   Mova a pipeta", 1);
-    printLCD("  para este tubo", 2);
+    printLCD("   para este tubo", 2);
 
     modoPosicionamentoManual();
 

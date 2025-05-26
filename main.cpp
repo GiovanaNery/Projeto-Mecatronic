@@ -66,18 +66,29 @@ int main() {
       referenciar_EixoXY();
       Enable = 1;
     }
+
     if (botaoEmergencia == 0) {
       // Ao terminar o homing, troca para o verde por 3 segundos
       acenderLed('g'); // liga apenas o verde
     }
     if (botaoEmergencia == 0) {
-      wait(2.0); // mantém o verde por 3 segundos 
+      wait(2.0); // mantém o verde por 3 segundos
       // Desliga todos os LEDs e continua o programa
       ledVermelho = ledVerde = ledAmarelo = 0;
     }
 
     if (botaoEmergencia == 0) {
       configurarSistema();
+    }
+    if (botaoEmergencia == 0) {
+      confirmado = false;
+      // 8) Pergunta reinício do processo
+      printLCD("   Pressione para   ", 0);
+      printLCD(" iniciar o processo", 1);
+      while (!confirmado) {
+        // espera nova confirmação
+        wait(0.5);
+      }
     }
 
     if (botaoEmergencia == 0) {
@@ -116,7 +127,7 @@ int main() {
             coleta_liberacao(); // coletando do becker
           }
           if (botaoEmergencia == 0) {
-            wait(2);
+            wait(2.5);
             mover_Z(0); // zera o Z
           }
           if (botaoEmergencia == 0) {
@@ -132,7 +143,7 @@ int main() {
             coleta_liberacao(); // dispensando
           }
           if (botaoEmergencia == 0) {
-            wait(2);
+            wait(2.5);
             mover_Z(0); // zera o Z
           }
           if (botaoEmergencia == 0) {
@@ -147,7 +158,7 @@ int main() {
 
     if (botaoEmergencia == 0) {
       mover_Z(0);
-      moverInterpoladoXY(10000, 231500); // home
+      moverInterpoladoXY(10000, 10000); // home
       // Som e mensagem para sinalizar término
       acenderLed('g'); // liga apenas o verde
       printLCD(" Processo concluido ", 0);
@@ -160,8 +171,8 @@ int main() {
     if (botaoEmergencia == 0) {
       confirmado = false;
       // 8) Pergunta reinício do processo
-      printLCD(" Deseja reiniciar", 0);
-      printLCD("    o processo?", 1);
+      printLCD("   Pressione para   ", 0);
+      printLCD("reiniciar o processo", 1);
       while (!confirmado) {
         // espera nova confirmação
         wait(0.5);

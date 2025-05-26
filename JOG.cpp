@@ -140,7 +140,7 @@ void z(int direcao) {
         wait_us((0.0025 * 1e6f));
     }
     // Descer
-    else if (direcao > 0) {
+    else if (direcao > 0 && passos_Z < 3950) {
         MOTOR_Z = 1 << Z_passo;
         Z_passo = (Z_passo - 1 + 4) % 4;
         passos_Z++;
