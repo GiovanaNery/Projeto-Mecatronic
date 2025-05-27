@@ -27,18 +27,18 @@ volatile bool confirmado = false;
 int valorAnterior = encoderValor;
 bool ultimoEstadoBotao = 1; // botão não pressionado
 
-// === Função de leitura de giro ===
 void encoderGiro() {
-  if (encoderCLK.read() == encoderDT.read()) {
+  // agora, se CLK ≠ DT (sentido horário) a gente incrementa
+  if (encoderCLK.read() != encoderDT.read()) {
     contadorCliques++;
   } else {
     contadorCliques--;
   }
 
-  if (contadorCliques >= 5) {
+  if (contadorCliques >= 2) {
     encoderValor++;
     contadorCliques = 0;
-  } else if (contadorCliques <= -5) {
+  } else if (contadorCliques <= -2) {
     encoderValor--;
     contadorCliques = 0;
   }
@@ -50,17 +50,15 @@ void aoConfirmar() { confirmado = true; }
 // === Função principal de seleção com LCD ===
 int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
                             int minValor, int maxValor, int ind) {
-  // ind = 0 → seleciona volume (exibe “Volume: X mL”)
-  // ind = 1 → apenas exibe o número
-  encoderValor = valorInicial;
+  encoderValor = valorInicial; // começa com 1
   contadorCliques = 0;
   confirmado = false;
-  int valorAnterior = encoderValor;
+  int valorAnterior = -1; // força print inicial mesmo se começar em 1
 
   printLCD(mensagem, 0); // mensagem na linha 0
 
-  while (!confirmado && botaoEmergencia==0) {
-    // limita entre minValor e maxValor
+  while (!confirmado && botaoEmergencia == 0) {
+    // aplica os limites
     if (encoderValor < minValor)
       encoderValor = minValor;
     else if (encoderValor > maxValor)
@@ -69,15 +67,15 @@ int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
     if (encoderValor != valorAnterior) {
       char buffer[20];
       if (ind == 0) {
-        sprintf(buffer, "Volume: %d mL", encoderValor);
+        sprintf(buffer, "Volume: %d mL ", encoderValor);
       } else {
-        sprintf(buffer, "%d", encoderValor);
+        sprintf(buffer, "%d ", encoderValor);
       }
-      printLCD(buffer, 1); // valor na linha 1
+      printLCD(buffer, 1); // exibe o valor
       valorAnterior = encoderValor;
     }
 
-    wait_ms(10); // debounce suave
+    wait_ms(10); // debounce
   }
 
   confirmado = false;
@@ -90,6 +88,24 @@ void setupEncoder() {
   encoderBotao.mode(PullUp);
   encoderCLK.fall(&encoderGiro);   // gira
   encoderBotao.fall(&aoConfirmar); // botão confirma
+}
+bool confirmado_5seg = false;
+
+void verificarPressionamentoLongo() {
+  const int tempoPressionado_ms = 5000;  // 5 segundos
+  int tempoPressionado = 0;
+
+  if (encoderBotao.read() == 0) {  // Botão pressionado (LOW, assumindo PullUp)
+    while (encoderBotao.read() == 0) {
+      wait_ms(10);
+      tempoPressionado += 10;
+
+      if (tempoPressionado >= tempoPressionado_ms) {
+        confirmado_5seg = true;
+        break;
+      }
+    }
+  }
 }
 
 // chave seletora - para definir a velocidade que quero usar

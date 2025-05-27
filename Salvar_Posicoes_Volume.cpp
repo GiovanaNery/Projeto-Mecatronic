@@ -1,8 +1,12 @@
-#include "JOG.h"
-#include "mbed.h"
+<<<<<<< HEAD
+=======
+// === ARQUIVO: setup_pipetagem.cpp ===
 #include "IHM.h"
-#include "printLCD.h"
+>>>>>>> dfa233bbb30941052a8569095d8c6519ab0b04fb
+#include "JOG.h"
 #include "Referenciamento.h"
+#include "mbed.h"
+#include "printLCD.h"
 
 extern DigitalIn botaoEmergencia;
 
@@ -16,39 +20,43 @@ struct Tubo {
   int volumeML;
 };
 
-const int MAX_TUBOS = 10;
+const int MAX_TUBOS = 100;
 Tubo tubos[MAX_TUBOS];
 int quantidadeTubos = 0;
 
 Ponto3D posBecker;
 int volumeBeckerML = 0;
 
-
 // === FLUXO DE CONFIGURAÇÃO ===
 void configurarSistema() {
   setupEncoder();
   // 1. POSICIONAR BÉQUER
-  printLCD("   Mova a pipeta   ",0);
-  printLCD("    ate o bequer    ",1);
+  printLCD("    >> Bequer <<", 0);
+  printLCD("   Mova a pipeta", 1);
+  printLCD("    para coleta", 2);
   modoPosicionamentoManual();
   posBecker.x = passos_X;
   posBecker.y = passos_Y;
   posBecker.z = passos_Z;
 
   // 3. DEFINIR QUANTIDADE DE TUBOS
-  quantidadeTubos = selecionarVolumeEncoder("Quantidade de tubos:", 1, 1, MAX_TUBOS,1);
+  quantidadeTubos =
+      selecionarVolumeEncoder("Quantidade de tubos:", 1, 1, 100, 1);
 
   // 4. DEFINIR POSIÇÃO E VOLUME DE CADA TUBO
-  for (int i = 0; i < quantidadeTubos; i++ && botaoEmergencia==0) {
+  for (int i = 0; i < quantidadeTubos && botaoEmergencia == 0; i++) {
     char buf[21];
-    sprintf(buf, "Tubo %d", i + 1);
-    printLCD(buf, 0);  // ajusta o ‘0’ pra linha que você quiser
-    printLCD("   Mova a pipeta   ",0);
-    printLCD("    ate o tubo    ",1);
+    sprintf(buf, "    >> Tubo %d <<", i + 1);
+    printLCD(buf, 0);
+    printLCD("   Mova a pipeta", 1);
+    printLCD("   para este tubo", 2);
+
     modoPosicionamentoManual();
-    tubos[i].pos.x = passos_X;           // usa o contador global
+
+    tubos[i].pos.x = passos_X;
     tubos[i].pos.y = passos_Y;
     tubos[i].pos.z = passos_Z;
-    tubos[i].volumeML = selecionarVolumeEncoder("Volume para o tubo:", 1, 1, 20,0);
+
+    tubos[i].volumeML = selecionarVolumeEncoder(buf, 1, 1, 100, 0);
   }
 }

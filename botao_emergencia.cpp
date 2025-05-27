@@ -46,8 +46,9 @@ void modoEmergencia() {
   buzzer = 0;
 
   // 5) Pergunta confirmação de saída
-  printLCD("Confirmar saida do", 0);
-  printLCD("Modo de Emergencia?", 1);
+  printLCD("   Pressione para   ", 0);
+  printLCD(" confirmar saida do ", 1);
+  printLCD(" Modo de Emergencia ", 2);
   confirmado = false;
   while (!confirmado) {
     wait(0.5);
@@ -60,8 +61,9 @@ void modoEmergencia() {
 
   confirmado = false;
   // 8) Pergunta reinício do processo
-  printLCD(" Deseja reiniciar ", 0);
-  printLCD("    o processo?   ", 1);
+  printLCD("   Pressione para   ", 0);
+  printLCD("      reiniciar     ", 1);
+  printLCD("     o processo     ", 2);
   while (!confirmado) {
     // espera nova confirmação
     wait(0.5);
