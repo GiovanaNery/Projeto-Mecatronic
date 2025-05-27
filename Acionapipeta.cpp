@@ -13,3 +13,5 @@ void coleta_liberacao()
     wait(1);
     
 }
+
+

@@ -1,4 +1,3 @@
-// === ARQUIVO: setup_pipetagem.cpp ===
 #include "IHM.h"
 #include "JOG.h"
 #include "Referenciamento.h"
