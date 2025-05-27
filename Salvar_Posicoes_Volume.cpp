@@ -1,4 +1,3 @@
-// === ARQUIVO: setup_pipetagem.cpp ===
 #include "JOG.h"
 #include "mbed.h"
 #include "IHM.h"
