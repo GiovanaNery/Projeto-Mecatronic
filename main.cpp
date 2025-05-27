@@ -35,12 +35,22 @@ void printLCD(const char *texto, int linha) {
 }
 
 int main() {
-  startstop = 0;
   // configuracão LCD
   lcd.setCursor(TextLCD::CurOff_BlkOff);
   lcd.setBacklight(TextLCD::LightOn);
   // configura encoder + botões
   setupEncoder();
+  printLCD(" aa", 0);
+
+  if (botaoEmergencia == 0) {
+    startstop = 0;
+  }
+
+  // configuracão LCD
+  // lcd.setCursor(TextLCD::CurOff_BlkOff);
+  // lcd.setBacklight(TextLCD::LightOn);
+  // configura encoder + botões
+  // setupEncoder();
   // Mostra o nome do sistema por 0.5s
   if (botaoEmergencia == 0) {
     printLCD("     PIPETRONIX     ", 0);
@@ -183,9 +193,9 @@ int main() {
       ledVerde = 0;
     }
 
+  }
     // configuracão botão de emergencia
     if (botaoEmergencia == 1) {
       modoEmergencia();
     }
-  }
 }

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-=======
-// === ARQUIVO: setup_pipetagem.cpp ===
 #include "IHM.h"
->>>>>>> dfa233bbb30941052a8569095d8c6519ab0b04fb
 #include "JOG.h"
 #include "Referenciamento.h"
 #include "mbed.h"
