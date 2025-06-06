@@ -6,12 +6,7 @@
 #include <string>
 #include <cstring>
 
-// Declaração do barramento I2C (caso também esteja em outro .cpp)
-//extern I2C i2c_lcd;
-
-// Declaração externa do LCD
 extern float velocidade_jog;
-extern bool confirmado_5seg;
 
 // declaração de funções e variaveis
 void encoderGiro();
@@ -23,5 +18,4 @@ void printLCD(const char* texto, int linha);
 void chaveseletora();
 void acenderLed(char cor); 
 void controlarEixoZ();
-void verificarPressionamentoLongo();
 #endif

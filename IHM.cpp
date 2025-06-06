@@ -2,136 +2,147 @@
 #include "mbed.h"
 #include "printLCD.h"
 
-// Pinos para os LEDs
-DigitalOut ledVermelho(A2);
-DigitalOut ledAmarelo(A4);
-DigitalOut ledVerde(A5);
-// Pino fixo da chave seletora
-DigitalIn seletor(PC_4);
-// Pinos dos botões
-DigitalIn botaoZmais(PC_2);  // z no sentido positivo
-DigitalIn botaoZmenos(PC_3); // z no sentido negativo
-// Pinos do motor - drivers
-DigitalOut passoZ(D6);
-DigitalOut direcaoZ(D5);
-// PINOS DO ENCODER
-InterruptIn encoderCLK(PB_12);   // sinal A
-DigitalIn encoderDT(PB_11);      // sinal B
-InterruptIn encoderBotao(PA_11); // botão (leitura manual)
+// Definição dos pinos para os LEDs de status
+DigitalOut ledVermelho(A2);  // LED vermelho conectado ao pino A2
+DigitalOut ledAmarelo(A4);   // LED amarelo conectado ao pino A4
+DigitalOut ledVerde(A5);     // LED verde conectado ao pino A5
+
+// Pino da chave seletora (usada para ajustar a velocidade no modo manual)
+DigitalIn seletor(PC_4);      // Chave seletora conectada ao pino PC_4
+
+// Definição dos pinos dos botões para controle do eixo Z
+DigitalIn botaoZmais(PC_2);   // Botão que movimenta Z no sentido positivo (conectado a PC_2)
+DigitalIn botaoZmenos(PC_3);  // Botão que movimenta Z no sentido negativo (conectado a PC_3)
+
+// Definição dos pinos do driver do motor do eixo Z
+DigitalOut passoZ(D6);        // Pino STEP do motor Z conectado ao D6
+DigitalOut direcaoZ(D5);      // Pino DIR do motor Z conectado ao D5
+
+// Definição dos pinos do encoder rotativo
+InterruptIn encoderCLK(PB_12);   // Sinal A (CLK) do encoder conectado ao PB_12
+DigitalIn encoderDT(PB_11);      // Sinal B (DT) do encoder conectado ao PB_11
+InterruptIn encoderBotao(PA_11); // Botão integrado do encoder (leitura manual via interrupção) no pino PA_11
+
+// Declaração externa do botão de emergência (definido em outro módulo)
 extern DigitalIn botaoEmergencia;
 
-// === VARIÁVEIS ===
-volatile int encoderValor = 1;
-volatile int contadorCliques = 0;
-volatile bool confirmado = false;
-int valorAnterior = encoderValor;
-bool ultimoEstadoBotao = 1; // botão não pressionado
+// === VARIÁVEIS GLOBAIS ===
+volatile int encoderValor = 1;     // Valor atual selecionado pelo encoder (começa em 1)
+volatile int contadorCliques = 0;  // Contador intermediário para detectar passo do encoder
+volatile bool confirmado = false;  // Flag que indica se o usuário confirmou a seleção
+int valorAnterior = encoderValor;  // Armazena valor anterior para controle de atualização de display
+bool ultimoEstadoBotao = 1;        // Estado anterior do botão do encoder (1 = não pressionado)
 
+// === Rotina de Interrupção para leitura do giro do encoder ===
 void encoderGiro() {
-  // agora, se CLK ≠ DT (sentido horário) a gente incrementa
-  if (encoderCLK.read() != encoderDT.read()) {
-    contadorCliques++;
-  } else {
-    contadorCliques--;
-  }
+    // Quando o encoder gira, o sinal CLK muda. Comparamos CLK e DT para saber a direção.
+    // Se CLK ≠ DT, assumimos que girou no sentido horário e incrementamos contadorCliques.
+    if (encoderCLK.read() != encoderDT.read()) {
+        contadorCliques++;
+    } else {
+        // Caso CLK == DT, girou no sentido anti-horário, decrementamos contadorCliques.
+        contadorCliques--;
+    }
 
-  if (contadorCliques >= 2) {
-    encoderValor++;
-    contadorCliques = 0;
-  } else if (contadorCliques <= -2) {
-    encoderValor--;
-    contadorCliques = 0;
-  }
+    // Quando contadorCliques acumula +2, incrementamos encoderValor (um “passo” completo)
+    if (contadorCliques >= 2) {
+        encoderValor++;       // Ajusta valor para cima
+        contadorCliques = 0;  // Reseta contador para começar novo ciclo
+    }
+    // Quando contadorCliques chega a -2, decrementamos encoderValor
+    else if (contadorCliques <= -2) {
+        encoderValor--;       // Ajusta valor para baixo
+        contadorCliques = 0;  // Reseta contador
+    }
 }
 
-// === Função de confirmação via botão ===
-void aoConfirmar() { confirmado = true; }
+// === Função de Interrupção para botão de confirmação do encoder ===
+void aoConfirmar() {
+    confirmado = true; // Seta flag de confirmado quando o botão do encoder é pressionado
+}
 
-// === Função principal de seleção com LCD ===
+// === Função principal que exibe menu de seleção de volume usando o encoder no LCD ===
+// Parâmetros:
+// - mensagem: texto a ser exibido na linha 0 do LCD para instruir o usuário
+// - valorInicial: valor a iniciar no encoder
+// - minValor: valor mínimo permitido
+// - maxValor: valor máximo permitido
+// - ind: indicador para decidir se exibe “Volume: X mL” (ind == 0) ou apenas valor numérico (ind != 0)
 int selecionarVolumeEncoder(const char *mensagem, int valorInicial,
                             int minValor, int maxValor, int ind) {
-  encoderValor = valorInicial; // começa com 1
-  contadorCliques = 0;
-  confirmado = false;
-  int valorAnterior = -1; // força print inicial mesmo se começar em 1
+    encoderValor = valorInicial;  // Inicia encoderValor com o valorInicial
+    contadorCliques = 0;          // Reseta contador de cliques
+    confirmado = false;           // Reseta flag de confirmação
+    int valorAnterior = -1;       // Força atualização imediata no LCD (diferente de encoderValor)
 
-  printLCD(mensagem, 0); // mensagem na linha 0
+    printLCD(mensagem, 0);        // Exibe mensagem na linha 0 do LCD
 
-  while (!confirmado && botaoEmergencia == 0) {
-    // aplica os limites
-    if (encoderValor < minValor)
-      encoderValor = minValor;
-    else if (encoderValor > maxValor)
-      encoderValor = maxValor;
+    // Loop até usuário confirmar (confirmado == true) ou botão de emergência ser pressionado
+    while (!confirmado && botaoEmergencia == 0) {
+        // Garante que encoderValor fique dentro dos limites mínimo e máximo
+        if (encoderValor < minValor)
+            encoderValor = minValor;
+        else if (encoderValor > maxValor)
+            encoderValor = maxValor;
 
-    if (encoderValor != valorAnterior) {
-      char buffer[20];
-      if (ind == 0) {
-        sprintf(buffer, "Volume: %d mL ", encoderValor);
-      } else {
-        sprintf(buffer, "%d ", encoderValor);
-      }
-      printLCD(buffer, 1); // exibe o valor
-      valorAnterior = encoderValor;
+        // Se o valor mudou em relação à última iteração, atualiza display
+        if (encoderValor != valorAnterior) {
+            char buffer[20];
+            if (ind == 0) {
+                // Formato com “Volume: X mL ”
+                sprintf(buffer, "Volume: %d mL ", encoderValor);
+            } else {
+                // Formato apenas valor numérico
+                sprintf(buffer, "%d ", encoderValor);
+            }
+            printLCD(buffer, 1);    // Exibe o buffer na linha 1 do LCD
+            valorAnterior = encoderValor; // Armazena valor atual como anterior
+        }
+
+        wait_ms(10); // Pequeno atraso para debouncing do encoder
     }
 
-    wait_ms(10); // debounce
-  }
-
-  confirmado = false;
-  return encoderValor;
+    confirmado = false; // Reseta a flag para próxima chamada
+    return encoderValor; // Retorna o valor selecionado pelo usuário
 }
 
-// === Setup inicial ===
+// === Função de configuração inicial do encoder ===
 void setupEncoder() {
-  encoderDT.mode(PullUp);
-  encoderBotao.mode(PullUp);
-  encoderCLK.fall(&encoderGiro);   // gira
-  encoderBotao.fall(&aoConfirmar); // botão confirma
-}
-bool confirmado_5seg = false;
-
-void verificarPressionamentoLongo() {
-  const int tempoPressionado_ms = 5000;  // 5 segundos
-  int tempoPressionado = 0;
-
-  if (encoderBotao.read() == 0) {  // Botão pressionado (LOW, assumindo PullUp)
-    while (encoderBotao.read() == 0) {
-      wait_ms(10);
-      tempoPressionado += 10;
-
-      if (tempoPressionado >= tempoPressionado_ms) {
-        confirmado_5seg = true;
-        break;
-      }
-    }
-  }
+    encoderDT.mode(PullUp);             // Configura entrada DT com resistor PullUp
+    encoderBotao.mode(PullUp);          // Configura botão do encoder com PullUp
+    encoderCLK.fall(&encoderGiro);      // Dispara encoderGiro() na borda de descida de CLK
+    encoderBotao.fall(&aoConfirmar);    // Dispara aoConfirmar() na borda de descida do botão
 }
 
-// chave seletora - para definir a velocidade que quero usar
+// Variável externa para controlar a velocidade no modo manual (definida em outro módulo)
 extern float velocidade_jog;
+
+// === Função que lê a chave seletora para ajustar velocidade de jog (modo manual) ===
 void chaveseletora() {
-  if (seletor == 1) {
-      velocidade_jog = (0.001/16.0); //devagar
-  } else {
-      velocidade_jog = (0.0004/16.0); // Rápido
-  }
+    if (seletor == 1) {
+        // Se seletor estiver em 1, velocidade menor (devagar)
+        velocidade_jog = (0.001f / 16.0f);
+    } else {
+        // Caso contrário, velocidade maior (rápido)
+        velocidade_jog = (0.0004f / 16.0f);
+    }
 }
 
-// acender LEDS por cor
-void acenderLed(
-    char cor) { // acender apenas indicando apenas a incial correspondente a cor
-  // Apaga todos
-  ledVermelho = 0;
-  ledVerde = 0;
-  ledAmarelo = 0;
+// === Função para acender somente o LED correspondente à cor passada ===
+// Parâmetro:
+// - cor: caractere indicando LED (‘r’ = vermelho, ‘g’ = verde, ‘y’ = amarelo)
+void acenderLed(char cor) {
+    // Apaga todos os LEDs primeiro
+    ledVermelho = 0;
+    ledVerde = 0;
+    ledAmarelo = 0;
 
-  // Acende o LED escolhido
-  if (cor == 'r') {
-    ledVermelho = 1;
-  } else if (cor == 'g') {
-    ledVerde = 1;
-  } else if (cor == 'y') {
-    ledAmarelo = 1;
-  }
+    // Acende apenas o LED correspondente à inicial fornecida
+    if (cor == 'r') {
+        ledVermelho = 1; // Acende LED vermelho
+    } else if (cor == 'g') {
+        ledVerde = 1;    // Acende LED verde
+    } else if (cor == 'y') {
+        ledAmarelo = 1;  // Acende LED amarelo
+    }
 }
